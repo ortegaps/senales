@@ -22,7 +22,8 @@ class Base:
         parser.read('Config.ini')   
         ram = random.randint(1,6)
         #Widgets
-        win=gtk.VBox()
+        win=gtk.EventBox()
+        win.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color('White'))
         menu=gtk.VBox()
         title=gtk.Label('Senales de transito')
         inicio=gtk.Image()
@@ -30,6 +31,8 @@ class Base:
         sabes=gtk.Button(parser.get('botones','b'))
         sabias=gtk.Button(parser.get('botones','c'))
         salir=gtk.Button(parser.get('botones','e'))
+        #self.fondo = gtk.EventBox()
+        #self.fondo.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color('White'))
 
 
 
@@ -51,12 +54,11 @@ class Base:
         menu.add(inicio)
         menu.add(conoce)
         menu.add(sabes)
-        menu.add(sabias)
-    
+        menu.add(sabias)	
         self.window.show_all()
 
     def conoceme(self, conoce, menu=None, win=None):
-        menu.set_visible(False)
+    	win.remove(menu)
         conociendo=gtk.HBox()
         informativas=gtk.Frame('Informativas')
         informativas.set_shadow_type(gtk.SHADOW_ETCHED_OUT)
@@ -73,7 +75,7 @@ class Base:
         bbox.set_layout(gtk.BUTTONBOX_CENTER)
         
         salir = gtk.Button('Inicio')
-        menu.set_visible(False)
+
         salir.connect('clicked', self.salir, menu, win, conociendo)
 
 
@@ -1207,7 +1209,6 @@ class Base:
         infomage1.add(balneariob)
         infomage1.add(barb)
         infomage1.add(css2b)
-
         infomage1.add(ptb)
         infomage1.add(campamentob)
         infomage1.add(cdab)
@@ -1300,23 +1301,18 @@ class Base:
         preventivasimg3.add(tunelb)
         preventivasimg3.add(iniciodobleb)
         preventivasimg3.add(g)
-
-
-        
-        win.add(bbox)
+        conociendo.add(bbox)
         bbox.add(salir)
         bbox.show_all()
-
         conociendo.show_all()
 
+    def detalle(self, boton, conociendo, salir, win, data):
+        for conociendo in win.get_children(): win.remove(conociendo)
+        self.windows = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        self.windows.connect("destroy", lambda w: gtk.main_quit())  	
 
-
-
-    def detalle(self, boton, conociendo=None, salir=None, win=None, data=None):
         parser=SafeConfigParser()
         parser.read('Config.ini')
-        conociendo.set_visible(False)
-        salir.set_visible(False)
         detalle = gtk.VBox()
         titulo = gtk.Label(parser.get(data,'titulo'))
         imagesenal = gtk.Image()
@@ -1326,45 +1322,38 @@ class Base:
         textbuffer = info.get_buffer()
         textbuffer.set_text(parser.get(data,'info'))
         quit = gtk.Button('Salir')
-
         pixbuf = gtk.gdk.pixbuf_new_from_file(parser.get(data,'image'))
         scaled_pixbuf = pixbuf.scale_simple(400,400,gtk.gdk.INTERP_BILINEAR)
         imagesenal.set_from_pixbuf(scaled_pixbuf)
-        quit.connect('clicked', self.volver, detalle, conociendo, salir)
+        quit.connect('clicked',self.volver, detalle, conociendo)
 
-    
         win.add(detalle)
         detalle.add(titulo)
-        detalle.add(imagesenal)
+        detalle.add(imagesenal) 
         detalle.add(info)
         detalle.add(quit)
-
-        detalle.show_all()
+        win.show_all()
     
-    def volver(self, quit, detalle=None, conociendo=None, salir=None):
-        detalle.set_visible(False)  
-        conociendo.set_visible(True)
-        salir.set_visible(True) 
-    def exit(self, exit, menu, windows):
-        windows.set_visible(False)
-        exit.set_visible(False) 
-        menu.set_visible(True)
-    def salir1(self,quiti,menu,historia):
-        quiti.set_visible(False)
-        historia.set_visible(False)
-        menu.set_visible(True)
-   
-    def futurista(self,sabias,menu,win,ram,windows=None):
-        menu.set_visible(False)
+    def volver(self,win,detalle,conociendo):
+    	for detalle in win.get_children(): win.remove(detalle)
+       	win.add(conociendo)
+        win.show_all()
+    def exit(self,win,vbox,menu):
+        for vbox in win.get_children(): win.remove(vbox)
+        win.add(menu)
+        win.show_all()
+    def salir1(self,win,menu,historia):	
+        for historia in win.get_children(): win.remove(historia)        
+        win.add(menu)
+       	win.show_all()
+    def futurista(self,menu,win,ram,conociendo):
+        win.remove(menu)
         self.windows = gtk.Window(gtk.WINDOW_TOPLEVEL)
         self.windows.connect("destroy", lambda w: gtk.main_quit())
         parser=SafeConfigParser()
         parser.read('Config.ini')
-
-        win.set_visible(False)
-        sabias.set_visible(False)
         historia = gtk.VBox()
-        self.windows.add(historia)
+        win.add(historia)
         title = gtk.Label(parser.get('historia' + str (ram),'title'))
 
         imagehistory = gtk.Image()
@@ -1374,7 +1363,7 @@ class Base:
         textbuffer = infohistory.get_buffer()
         textbuffer.set_text(parser.get('historia' + str (ram),'h'))
         quiti = gtk.Button('Salir')
-        self.windows.show_all()
+        win.show_all()
         historia.add(title) 
         historia.add(imagehistory)
         historia.add(infohistory)
@@ -1388,23 +1377,16 @@ class Base:
         quiti.connect('clicked',self.salir1,menu,historia,)
        
     def salir(self, salir, menu, win, conociendo):
-        conociendo.set_visible(False)
-        salir.set_visible(False)    
-        menu.set_visible(True)
+    	win.remove(conociendo)
+        win.add(menu)
+        win.show_all()
         
-    
-
-
-
-
-    def initi(self, sabes, menu=None, windows=None):
-        menu.set_visible(False)
-        self.windows = gtk.Window(gtk.WINDOW_TOPLEVEL)
-        self.windows.connect("destroy", lambda w: gtk.main_quit())
+    def initi(self, sabes,win,menu):
+        for menu in win.get_children(): win.remove(menu)
         image = gtk.Image()
         vbox = gtk.VBox()
         hbox = gtk.HBox()
-        self.windows.add(vbox)
+        win.add(vbox)
         button_0 = gtk.Label()
         button_1 = gtk.Button()
         button_2 = gtk.Button()
@@ -1416,15 +1398,13 @@ class Base:
         hbox.add(button_1)
         hbox.add(button_2)
         hbox.add(button_3)
-        bboxt = gtk.HButtonBox()
+        bboxt = gtk.HButtonBox()	
         bboxt.set_layout(gtk.BUTTONBOX_CENTER)
         bboxt.add(bexit)
         vbox.add(bboxt)
-
-
-        bexit.connect('clicked', self.exit, menu, self.windows)
+        bexit.connect('clicked', self.exit,win,menu)
         bboxt.show_all()
-        self.windows.show_all()
+        win.show_all()
         self.puntaje=0
         self.numero=random.randint(1,39)
         self.anterior=self.numero
@@ -1438,18 +1418,10 @@ class Base:
         image.set_from_pixbuf(scaled_pixbuf)
         button_1.set_label(self.parser.get('pregunta'+str(self.numero), 'correcta'))
         button_2.set_label(self.parser.get('pregunta'+str (self.numero), 'incorrecta2'))
-        button_3.set_label(self.parser.get('pregunta'+str (self.numero), 'incorrecta1'))
-        
+        button_3.set_label(self.parser.get('pregunta'+str (self.numero), 'incorrecta1'))   
         button_1.connect('clicked',self.__cambiar_imagen_cb, button_2,button_3,button_0,image)
         button_2.connect('clicked',self.__cambiar_imagen_cb, button_3,button_1,button_0,image)
         button_3.connect('clicked',self.__cambiar_imagen_cb, button_2,button_1,button_0,image)
-   
-
-
-
-    
-
- 
      
     def __cambiar_imagen_cb(self,b1,b2=None,b3=None,b0=None,i=None):
         if b1.get_label()== self.parser.get('pregunta'+ str(self.anterior), 'correcta'):  
@@ -1464,10 +1436,7 @@ class Base:
            self.numero=1
         else:
             self.numero+=1
-        
 
-
-      
         if self.numero % 2 ==0:
             pixbuf = gtk.gdk.pixbuf_new_from_file(self.parser.get('pregunta'+str(self.numero), 'imagen'))
             scaled_pixbuf = pixbuf.scale_simple(400,400,gtk.gdk.INTERP_BILINEAR)
@@ -1489,8 +1458,6 @@ class Base:
             self.total= int(self.total)+1
             b0.set_label('%d %s de %d' % (self.puntaje, palabra, self.total))
 
-
- 
     def read_file(self, tmp_file):
         self.puntaje=self.metadata["puntaje"]
         self.total=self.metadata["total"]
@@ -1502,12 +1469,9 @@ class Base:
         self.metadata["anterior"]=self.anterior
         self.metadata["total"]=self.total
         self.metadata["puntaje"]=self.puntaje
-    
-    
+ 
     def main(self):
         gtk.main()
-
-
 
 print __name__
 if __name__ == "__main__": 
