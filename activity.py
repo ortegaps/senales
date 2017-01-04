@@ -1,1479 +1,364 @@
 #!/usr/bin/env python
-
-
+# -*- coding:utf-8 -*-
+import gi
+gi.require_version('Gtk', '3.0')
 
 import random
-import pygtk
-pygtk.require('2.0')
-import gtk
+from gi.repository import Gtk
+from gi.repository import Gdk
+from gi.repository import GdkPixbuf
 from ConfigParser import SafeConfigParser
-import logging
-import gobject
+import json
 
 
+class Base(Gtk.Window):
 
-class Base:
     def __init__(self):
-        self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-        self.window.connect("destroy", lambda w: gtk.main_quit())
-        
-        #Parser
-        parser=SafeConfigParser()
-        parser.read('Config.ini')   
-        ram = random.randint(1,6)
-        #Widgets
-        win=gtk.EventBox()
-        win.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color('White'))
-        menu=gtk.VBox()
-        title=gtk.Label('Senales de transito')
-        inicio=gtk.Image()
-        conoce=gtk.Button(parser.get('botones','a'))
-        sabes=gtk.Button(parser.get('botones','b'))
-        sabias=gtk.Button(parser.get('botones','c'))
-        salir=gtk.Button(parser.get('botones','e'))
-        #self.fondo = gtk.EventBox()
-        #self.fondo.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color('White'))
+        Gtk.Window.__init__(self, Gtk.WindowType.TOPLEVEL)
+        self.connect("delete-event", Gtk.main_quit)
+        # Uso un scroll como solución a los problemas de resolución
+        self.scroll = Gtk.ScrolledWindow()
+        self.scroll.set_policy(
+            Gtk.PolicyType.AUTOMATIC,
+            Gtk.PolicyType.AUTOMATIC)
+        # Uso un widget principal para los problemas de resolución x2..
+        self.widget_principal = Gtk.EventBox()
 
+        self.scroll.add_with_viewport(self.widget_principal)
+        self.conociendo = None
+        self.menu = None
 
+        self.maximize()
 
-    
-        #Conexiones
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/inicio.gif')
-        scaled_pixbuf = pixbuf.scale_simple(400,400,gtk.gdk.INTERP_BILINEAR)
-        inicio.set_from_pixbuf(scaled_pixbuf)
-        conoce.connect('clicked', self.conoceme, menu, win)
-        sabes.connect('clicked', self.initi, menu, win)
-        sabias.connect('clicked', self.futurista, menu, win, ram,)
+        self.modify_bg(Gtk.StateType.NORMAL, Gdk.color_parse("white"))
+        self.entrar_a_menu()
 
+        self.add(self.scroll)
+        self.show_all()
 
+    def entrar_a_menu(self, widget=None):
+        if not self.menu:
+            self.crear_menu()
 
-        #Diseno
-        self.window.add(win)
-        win.add(menu)
-        menu.add(title)
-        menu.add(inicio)
-        menu.add(conoce)
-        menu.add(sabes)
-        menu.add(sabias)	
-        self.window.show_all()
+        self.limpiar_ventana()
+        self.widget_principal.add(self.menu)
+        self.show_all()
 
-    def conoceme(self, conoce, menu=None, win=None):
-    	win.remove(menu)
-        conociendo=gtk.HBox()
-        informativas=gtk.Frame('Informativas')
-        informativas.set_shadow_type(gtk.SHADOW_ETCHED_OUT)
-        informativas.set_size_request(400, 700)
-        preventivas=gtk.Frame('Preventivas')
-        preventivas.set_shadow_type(gtk.SHADOW_ETCHED_OUT)
-        preventivas.set_size_request(400, 700)
-        reglamentarias = gtk.Frame('Reglamentarias')
-        reglamentarias.set_shadow_type(gtk.SHADOW_ETCHED_OUT)
-        reglamentarias.set_size_request(400, 700) 
-    
-    #Conexiones
-        bbox = gtk.HButtonBox()
-        bbox.set_layout(gtk.BUTTONBOX_CENTER)
-        
-        salir = gtk.Button('Inicio')
+    def crear_menu(self):
+        self.limpiar_ventana()
 
-        salir.connect('clicked', self.salir, menu, win, conociendo)
-
-
-        infomage=gtk.HBox()
-        infomage1=gtk.VBox()
-        infomage2=gtk.VBox()
-        infomage3=gtk.VBox()
-        win.add(conociendo)
-        conociendo.add(informativas)
-        conociendo.add(preventivas)
-        conociendo.add(reglamentarias)
-        self.scrolled_informativas = gtk.ScrolledWindow()
-        self.scrolled_informativas.set_border_width(10)
-        self.scrolled_informativas.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        informativas.add(self.scrolled_informativas)
-        self.scrolled_informativas.add_with_viewport(infomage)
-        preventivasimg=gtk.HBox()
-        preventivasimg1=gtk.VBox()
-        preventivasimg2=gtk.VBox()
-        preventivasimg3=gtk.VBox()
-        self.scrolled_preventivas = gtk.ScrolledWindow()
-        self.scrolled_preventivas.set_border_width(10)
-        self.scrolled_preventivas.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        preventivas.add(self.scrolled_preventivas)
-        self.scrolled_preventivas.add_with_viewport(preventivasimg)
-        reglamentariasV1=gtk.VBox()
-        reglamentariasH1=gtk.HBox()
-        reglamentariasV2=gtk.VBox()
-        reglamentariasV3=gtk.VBox()
-        reglamentariasV4=gtk.VBox()
-        self.scrolled_reglamentarias = gtk.ScrolledWindow()
-        self.scrolled_reglamentarias.set_border_width(10)
-        self.scrolled_reglamentarias.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        reglamentarias.add(self.scrolled_reglamentarias)
-        self.scrolled_reglamentarias.add_with_viewport(reglamentariasV1)
-        reglamentariasV1.add(reglamentariasH1)
-        reglamentariasH1.add(reglamentariasV2)
-        reglamentariasH1.add(reglamentariasV3)
-        reglamentariasH1.add(reglamentariasV4)
-        win.show()
-
-        #Labels para completar los verticals y que sean todas iguales 
-        a=gtk.Label()
-        b=gtk.Label()
-        f=gtk.Label()
-        g=gtk.Label()
-        h=gtk.Label()
-        
-            #Imagenes informativas
-        #Desde aqui se encuentran las imagenes de las senales de transito informativas, 
-        #divididas en partes para que todo sea organizado en 4 Verticals Box
-        #aeropuerto 
-        aeropuerto=gtk.Image()  
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/aeropuerto.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        aeropuerto.set_from_pixbuf(scaled_pixbuf)
-        aeropuertob=gtk.Button()
-        aeropuertob.add(aeropuerto)
-        aeropuertob.connect('clicked', self.detalle, conociendo, salir, win, 'aeropuerto')
-        #balneario
-        balneario=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/balneario.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        balneario.set_from_pixbuf(scaled_pixbuf)
-        balneariob=gtk.Button()
-        balneariob.add(balneario)
-        balneariob.connect('clicked', self.detalle, conociendo, salir, win, 'balneario')
-        #bar
-        bar=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/bar.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        bar.set_from_pixbuf(scaled_pixbuf)
-        barb=gtk.Button()
-        barb.add(bar)
-        barb.connect('clicked', self.detalle, conociendo, salir, win, 'Bar')
-        #camino sin salida
-        css=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/camino-o-calle-sin-salida.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        css.set_from_pixbuf(scaled_pixbuf)
-        cssb=gtk.Button()
-        cssb.add(css)
-        cssb.connect('clicked', self.detalle, conociendo, salir, win, 'camino_sin_salida')
-        #camino sin salida 2
-        css2=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/camino-o-calle-sin-salida2.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        css2.set_from_pixbuf(scaled_pixbuf)
-        css2b=gtk.Button()
-        css2b.add(css2)
-        css2b.connect('clicked', self.detalle, conociendo, salir, win, 'camino_sin_salida2')
-        #paso transitable 
-        pt=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/paso1.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        pt.set_from_pixbuf(scaled_pixbuf)
-        ptb=gtk.Button()
-        ptb.add(pt)
-        ptb.connect('clicked', self.detalle, conociendo, salir, win, 'camino_transitable')
-        # camino-o-paso-transitable2
-        pt2=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/paso2.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        pt2.set_from_pixbuf(scaled_pixbuf)
-        pt2b=gtk.Button()
-        pt2b.add(pt2)
-        pt2b.connect('clicked', self.detalle, conociendo, salir, win, 'camino-o-paso-transitable2')
-        #campamento
-        campamento=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/campamento.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        campamento.set_from_pixbuf(scaled_pixbuf)
-        campamentob=gtk.Button()
-        campamentob.add(campamento)
-        campamentob.connect('clicked', self.detalle, conociendo, salir, win, 'campamento')
-        #comienzo de autopista
-        cda=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/comienzo-de-autopista.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        cda.set_from_pixbuf(scaled_pixbuf)
-        cdab=gtk.Button()
-        cdab.add(cda)
-        cdab.connect('clicked', self.detalle, conociendo, salir, win, 'comienzo_de_autopista')
-        #correo
-        correo=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/correo.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        correo.set_from_pixbuf(scaled_pixbuf)
-        correob=gtk.Button()
-        correob.add(correo)
-        correob.connect('clicked', self.detalle, conociendo, salir, win, 'correo')
-        
-        #desvio por cambio de sentido
-        dcs=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/desvio-por-cambio-de-sentid.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        dcs.set_from_pixbuf(scaled_pixbuf)
-        dcsb=gtk.Button()
-        dcsb.add(dcs)
-        dcsb.connect('clicked', self.detalle, conociendo, salir, win, 'desvio_por_cambio_de_sentido')
-        #direcciones permitidas
-        dp1=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/direccione2s-permitidad-igu.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        dp1.set_from_pixbuf(scaled_pixbuf)
-        dp1b=gtk.Button()
-        dp1b.add(dp1)
-        dp1b.connect('clicked', self.detalle, conociendo, salir, win, 'direcciones_permitidas')
-        #direcciones permitidas2
-        dp2=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/direcciones-permitidad-am-s.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        dp2.set_from_pixbuf(scaled_pixbuf)
-        dp2b=gtk.Button()
-        dp2b.add(dp2)
-        dp2b.connect('clicked', self.detalle, conociendo, salir, win, 'direcciones_permitidas2')
-        #direcciones permitidas3
-        dp3=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/direcciones-permitidad-bifu.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        dp3.set_from_pixbuf(scaled_pixbuf)
-        dp3b=gtk.Button()
-        dp3b.add(dp3)
-        dp3b.connect('clicked', self.detalle, conociendo, salir, win, 'direcciones_permitidas3')
-        #direcciones permitidas4
-        dp4=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/direcciones-permitidad-dere.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        dp4.set_from_pixbuf(scaled_pixbuf)
-        dp4b=gtk.Button()
-        dp4b.add(dp4)
-        dp4b.connect('clicked', self.detalle, conociendo, salir, win, 'direcciones_permitidas4')
-        #direcciones permitidas5
-        dp5=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/direcciones-permitidad-igua.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        dp5.set_from_pixbuf(scaled_pixbuf)
-        dp5b=gtk.Button()
-        dp5b.add(dp5)
-        dp5b.connect('clicked', self.detalle, conociendo, salir, win, 'direcciones_permitidas5')
-        #direcciones permitidas6
-        dp6=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/direcciones-permitidad-izqu.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        dp6.set_from_pixbuf(scaled_pixbuf)
-        dp6b=gtk.Button()
-        dp6b.add(dp6)
-        dp6b.connect('clicked', self.detalle, conociendo, salir, win, 'direcciones_permitidas6')
-        #esquema de recorrido
-        edr=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/esquema-de-recorrido.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        edr.set_from_pixbuf(scaled_pixbuf)
-        edrb=gtk.Button()
-        edrb.add(edr)
-        edrb.connect('clicked', self.detalle, conociendo, salir, win, 'esquema_de_recorrido')
-        #estacionamiento
-        estacionamiento=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/estacionamiento.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        estacionamiento.set_from_pixbuf(scaled_pixbuf)
-        estacionamientob=gtk.Button()
-        estacionamientob.add(estacionamiento)
-        estacionamientob.connect('clicked', self.detalle, conociendo, salir, win, 'estacionamiento')
-        
-        #estacionamiento de casas rodantes
-        estacionamiento2=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/estacionamiento-de-casas-ro.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        estacionamiento2.set_from_pixbuf(scaled_pixbuf)
-        estacionamiento2b=gtk.Button()
-        estacionamiento2b.add(estacionamiento2)
-        estacionamiento2b.connect('clicked', self.detalle, conociendo, salir, win, 'estacionamiento_de_casas_ro')
-        #estacionamiento permitido
-        estacionamiento3=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/estacionamiento-permitido.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        estacionamiento3.set_from_pixbuf(scaled_pixbuf)
-        estacionamiento3b=gtk.Button()
-        estacionamiento3b.add(estacionamiento3)
-        estacionamiento3b.connect('clicked', self.detalle, conociendo, salir, win, 'estacionamiento_permitido')
-        #estacion de ferrocarril
-        estacion=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/estacion-de-ferrocarril.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        estacion.set_from_pixbuf(scaled_pixbuf)
-        estacionb=gtk.Button()
-        estacionb.add(estacion)
-        estacionb.connect('clicked', self.detalle, conociendo, salir, win, 'estacion_de_ferrocarril')
-        #estacion de servicio
-        estacion2=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/estacion-de-servicio.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        estacion2.set_from_pixbuf(scaled_pixbuf)
-        estacion2b=gtk.Button()
-        estacion2b.add(estacion2)
-        estacion2b.connect('clicked', self.detalle, conociendo, salir, win, 'estacion_de_servicio')
-        #fin de autopista
-        fina=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/fin-de-autopista.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        fina.set_from_pixbuf(scaled_pixbuf)
-        finab=gtk.Button()
-        finab.add(fina)
-        finab.connect('clicked', self.detalle, conociendo, salir, win, 'fin_de_autopista')
-        #gomeria
-        gomeria=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/gomeria.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        gomeria.set_from_pixbuf(scaled_pixbuf)
-        gomeriab=gtk.Button()
-        gomeriab.add(gomeria)
-        gomeriab.connect('clicked', self.detalle, conociendo, salir, win, 'gomeria')
-        #hotel
-        hotel=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/hotel.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        hotel.set_from_pixbuf(scaled_pixbuf)
-        hotelb=gtk.Button()
-        hotelb.add(hotel)
-        hotelb.connect('clicked', self.detalle, conociendo, salir, win, 'hotel')
-        #indicadores de utilizacion
-        indicadores=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/indicadore-de-utilizacion-d.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        indicadores.set_from_pixbuf(scaled_pixbuf)
-        indicadoresb=gtk.Button()
-        indicadoresb.add(indicadores)
-        indicadoresb.connect('clicked', self.detalle, conociendo, salir, win, 'indicadore-de-utilizacion-d')
-        #lugar para recreacion y descanso
-        recreacion=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/lugar-para-recreacion-y-des.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        recreacion.set_from_pixbuf(scaled_pixbuf)
-        recreacionb=gtk.Button()
-        recreacionb.add(recreacion)
-        recreacionb.connect('clicked', self.detalle, conociendo, salir, win, 'lugar-para-recreacion')
-        #museo
-        museo=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/museo.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        museo.set_from_pixbuf(scaled_pixbuf)
-        museob=gtk.Button()
-        museob.add(museo)
-        museob.connect('clicked', self.detalle, conociendo, salir, win, 'museo')
-        #parada
-        parada=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/parada.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        parada.set_from_pixbuf(scaled_pixbuf)
-        paradab=gtk.Button()
-        paradab.add(parada)
-        paradab.connect('clicked', self.detalle, conociendo, salir, win, 'parada')
-        #permitido girar derecha
-        pgd=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/permitido-girar-derecha.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        pgd.set_from_pixbuf(scaled_pixbuf)
-        pgdb=gtk.Button()
-        pgdb.add(pgd)
-        pgdb.connect('clicked', self.detalle, conociendo, salir, win, 'permitido-girar-derecha')
-        #permitido girar izquierda
-        pgi=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/permitido-girar-izquierda.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        pgi.set_from_pixbuf(scaled_pixbuf)
-        pgib=gtk.Button()
-        pgib.add(pgi)
-        pgib.connect('clicked', self.detalle, conociendo, salir, win, 'permitido-girar-izquierda')
-        #playa
-        playa=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/playa.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        playa.set_from_pixbuf(scaled_pixbuf)
-        playab=gtk.Button()
-        playab.add(playa)
-        playab.connect('clicked', self.detalle, conociendo, salir, win, 'playa')
-        #plaza
-        plaza=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/plaza.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        plaza.set_from_pixbuf(scaled_pixbuf)
-        plazab=gtk.Button()
-        plazab.add(plaza)
-        plazab.connect('clicked', self.detalle, conociendo, salir, win, 'plaza')
-        #policia
-        policia=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/policia.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        policia.set_from_pixbuf(scaled_pixbuf)
-        policiab=gtk.Button()
-        policiab.add(policia)
-        policiab.connect('clicked', self.detalle, conociendo, salir, win, 'policia')
-        #puesto sanitario
-        ps=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/puesto_sanitario.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        ps.set_from_pixbuf(scaled_pixbuf)
-        psb=gtk.Button()
-        psb.add(ps)
-        psb.connect('clicked', self.detalle, conociendo, salir, win, 'puesto_sanitario')
-        #punto panoramico
-        pp=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/punto-panoramico.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        pp.set_from_pixbuf(scaled_pixbuf)
-        ppb=gtk.Button()
-        ppb.add(pp)
-        ppb.connect('clicked', self.detalle, conociendo, salir, win, 'punto-panoramico')
-        #restaurante
-        restaurante=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/restaurante.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        restaurante.set_from_pixbuf(scaled_pixbuf)
-        restauranteb=gtk.Button()
-        restauranteb.add(restaurante)
-        restauranteb.connect('clicked', self.detalle, conociendo, salir, win, 'restaurante')
-        #servicio mecanico
-        mecanico=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/servicio-mecanico.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        mecanico.set_from_pixbuf(scaled_pixbuf)
-        mecanicob=gtk.Button()
-        mecanicob.add(mecanico)
-        mecanicob.connect('clicked', self.detalle, conociendo, salir, win, 'servicio-mecanico')
-        #servicio telefonico
-        telefono=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/servicio-telefonico.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        telefono.set_from_pixbuf(scaled_pixbuf)
-        telefonob=gtk.Button()
-        telefonob.add(telefono)
-        telefonob.connect('clicked', self.detalle, conociendo, salir, win, 'servicio-telefonico')
-        #taxi
-        taxi=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/taxi.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        taxi.set_from_pixbuf(scaled_pixbuf)
-        taxib=gtk.Button()
-        taxib.add(taxi)
-        taxib.connect('clicked', self.detalle, conociendo, salir, win, 'taxi')
-        #teleferico
-        teleferico=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/teleferico.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        teleferico.set_from_pixbuf(scaled_pixbuf)
-        telefericob=gtk.Button()
-        telefericob.add(teleferico)
-        telefericob.connect('clicked', self.detalle, conociendo, salir, win, 'teleferico')
-        #terminal de omnibus
-        terminal=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/terminal-de-omnibus.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        terminal.set_from_pixbuf(scaled_pixbuf)
-        terminalb=gtk.Button()
-        terminalb.add(terminal)
-        terminalb.connect('clicked', self.detalle, conociendo, salir, win, 'terminal-de-omnibus')
-        #velocidades maximas permitidas
-        velocidades=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/informativas/velocidades-maximas-permiti.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        velocidades.set_from_pixbuf(scaled_pixbuf)
-        velocidadesb=gtk.Button()
-        velocidadesb.add(velocidades)
-        velocidadesb.connect('clicked', self.detalle, conociendo, salir, win, 'velocidades-maximas-permiti')
-
-        #Desde aqui imagenes preventivas con sus respectivos botones :)
-        
-        #altura-limitada
-        altural=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/altura-limitada.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        altural.set_from_pixbuf(scaled_pixbuf)
-        alturalb=gtk.Button()
-        alturalb.add(altural)
-        alturalb.connect('clicked', self.detalle, conociendo, salir, win, 'altura-limitada')
-        #ambulancia
-        ambulanciaes=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/ambulancia.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        ambulanciaes.set_from_pixbuf(scaled_pixbuf)
-        ambulanciab=gtk.Button()
-        ambulanciab.add(ambulanciaes)
-        ambulanciab.connect('clicked', self.detalle, conociendo, salir, win, 'ambulancia')
-        #ancho-limitado
-        anchol=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/ancho-limitado.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        anchol.set_from_pixbuf(scaled_pixbuf)
-        ancholb=gtk.Button()
-        ancholb.add(anchol)
-        ancholb.connect('clicked', self.detalle, conociendo, salir, win, 'ancho-limitado')  
-        #animales-sueltos-ciervos
-        asc=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/animales-sueltos-ciervos.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        asc.set_from_pixbuf(scaled_pixbuf)
-        ascb=gtk.Button()
-        ascb.add(asc)
-        ascb.connect('clicked', self.detalle, conociendo, salir, win, 'animales-sueltos-ciervos')   
-        #animales-sueltos-vaca
-        asv=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/animales-sueltos-vaca.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        asv.set_from_pixbuf(scaled_pixbuf)
-        asvb=gtk.Button()
-        asvb.add(asv)
-        asvb.connect('clicked', self.detalle, conociendo, salir, win, 'animales-sueltos-vaca')  
-        #calzada-dividida
-        cd=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/calzada-dividida.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        cd.set_from_pixbuf(scaled_pixbuf)
-        cdb=gtk.Button()
-        cdb.add(cd)
-        cdb.connect('clicked', self.detalle, conociendo, salir, win, 'calzada-dividida')
-        #calzada-rezbaladiza
-        cr=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/calzada-rezbaladiza.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        cr.set_from_pixbuf(scaled_pixbuf)
-        crb=gtk.Button()
-        crb.add(cr)
-        crb.connect('clicked', self.detalle, conociendo, salir, win, 'calzada-rezbaladiza')
-        #Camino sinuoso
-        caminos=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/Camino-sinuoso.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        caminos.set_from_pixbuf(scaled_pixbuf)
-        caminosb=gtk.Button()
-        caminosb.add(caminos)
-        caminosb.connect('clicked', self.detalle, conociendo, salir, win, 'Camino-sinuoso')
-        #ciclista
-        ciclista=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/ciclista.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        ciclista.set_from_pixbuf(scaled_pixbuf)
-        ciclistab=gtk.Button()
-        ciclistab.add(ciclista)
-        ciclistab.connect('clicked', self.detalle, conociendo, salir, win, 'ciclista')
-        #corredor-aereo
-        corredora=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/corredor-aereo.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        corredora.set_from_pixbuf(scaled_pixbuf)
-        corredorab=gtk.Button()
-        corredorab.add(corredora)
-        corredorab.connect('clicked', self.detalle, conociendo, salir, win, 'corredor-aereo')   
-        #Curva(comun)
-        curvac=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/Curva(comun).gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        curvac.set_from_pixbuf(scaled_pixbuf)
-        curvacb=gtk.Button()
-        curvacb.add(curvac)
-        curvacb.connect('clicked', self.detalle, conociendo, salir, win, 'Curva(comun)')
-        #Curva (Contracurva)
-        contracurva=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/Curva-(Contracurva).gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        contracurva.set_from_pixbuf(scaled_pixbuf)
-        contracurvab=gtk.Button()
-        contracurvab.add(contracurva)
-        contracurvab.connect('clicked', self.detalle, conociendo, salir, win, 'Curva(Contracurva)') 
-        #Curva-en-S
-        curvaens=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/Curva-en-S.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        curvaens.set_from_pixbuf(scaled_pixbuf)
-        curvaensb=gtk.Button()
-        curvaensb.add(curvaens)
-        curvaensb.connect('clicked', self.detalle, conociendo, salir, win, 'Curva-en-S')    
-
-
-        #derrumbes
-        derrumbes=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/derrumbes.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        derrumbes.set_from_pixbuf(scaled_pixbuf)
-        derrumbesb=gtk.Button()
-        derrumbesb.add(derrumbes)
-        derrumbesb.connect('clicked', self.detalle, conociendo, salir, win, 'derrumbes')
-        #encricijada-bifurcacion
-        enbi=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/encricijada-bifurcacion.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        enbi.set_from_pixbuf(scaled_pixbuf)
-        enbib=gtk.Button()
-        enbib.add(enbi)
-        enbib.connect('clicked', self.detalle, conociendo, salir, win, 'encricijada-bifurcacion')   
-        #encricijada-bifurcacion2
-        enbi2=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/encricijada-bifurcacion2.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        enbi2.set_from_pixbuf(scaled_pixbuf)
-        enbi2b=gtk.Button()
-        enbi2b.add(enbi2)
-        enbi2b.connect('clicked', self.detalle, conociendo, salir, win, 'encricijada-bifurcacion2') 
-        #encricijada-empalme
-        enem=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/encricijada-empalme.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        enem.set_from_pixbuf(scaled_pixbuf)
-        enemb=gtk.Button()
-        enemb.add(enem)
-        enemb.connect('clicked', self.detalle, conociendo, salir, win, 'encricijada-empalme')
-        #encrucijada-cruce
-        encr=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/encrucijada-cruce.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        encr.set_from_pixbuf(scaled_pixbuf)
-        encrb=gtk.Button()
-        encrb.add(encr)
-        encrb.connect('clicked', self.detalle, conociendo, salir, win, 'encrucijada-cruce') 
-        #escolares
-        escolares=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/escolares.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        escolares.set_from_pixbuf(scaled_pixbuf)
-        escolaresb=gtk.Button()
-        escolaresb.add(escolares)
-        escolaresb.connect('clicked', self.detalle, conociendo, salir, win, 'escolares')    
-        #Estrechamiento (una sola mano)
-        estrechamientom=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/Estrechamient(unasolamano).gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        estrechamientom.set_from_pixbuf(scaled_pixbuf)
-        estrechamientomb=gtk.Button()
-        estrechamientomb.add(estrechamientom)
-        estrechamientomb.connect('clicked', self.detalle, conociendo, salir, win, 'Estrechamient(unasolamano)') 
-        #Estrechamiento(dosmanos)
-        estrecho=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/Etrechamiento(dosmanos).gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        estrecho.set_from_pixbuf(scaled_pixbuf)
-        estrechob=gtk.Button()
-        estrechob.add(estrecho)
-        estrechob.connect('clicked', self.detalle, conociendo, salir, win, 'Etrechamiento(dosmanos)')   
-        #flecha-direccional
-        flechad=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/flecha-direccional.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        flechad.set_from_pixbuf(scaled_pixbuf)
-        flechadb=gtk.Button()
-        flechadb.add(flechad)
-        flechadb.connect('clicked', self.detalle, conociendo, salir, win, 'flecha-direccional') 
-        #flecha-direccional2
-        flechad2=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/flecha-direccional2.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        flechad2.set_from_pixbuf(scaled_pixbuf)
-        flechad2b=gtk.Button()
-        flechad2b.add(flechad2)
-        flechad2b.connect('clicked', self.detalle, conociendo, salir, win, 'flecha-direccional2')   
-        #incorporacion-de-transito-l
-        incor=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/incorporacion-de-transito-l.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        incor.set_from_pixbuf(scaled_pixbuf)
-        incorb=gtk.Button()
-        incorb.add(incor)
-        incorb.connect('clicked', self.detalle, conociendo, salir, win, 'incorporacion-de-transito-l')  
-        #inicio-de-doble-circulacion
-        iniciodoble=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/inicio-de-doble-circulacion.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        iniciodoble.set_from_pixbuf(scaled_pixbuf)
-        iniciodobleb=gtk.Button()
-        iniciodobleb.add(iniciodoble)
-        iniciodobleb.connect('clicked', self.detalle, conociendo, salir, win, 'inicio-de-doble-circulacion')    
-        #jinete
-        jinete=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/jinete.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        jinete.set_from_pixbuf(scaled_pixbuf)
-        jineteb=gtk.Button()
-        jineteb.add(jinete)
-        jineteb.connect('clicked', self.detalle, conociendo, salir, win, 'jinete')  
-        #Ninos
-        Ninos=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/Ninos.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        Ninos.set_from_pixbuf(scaled_pixbuf)
-        Ninosb=gtk.Button()
-        Ninosb.add(Ninos)
-        Ninosb.connect('clicked', self.detalle, conociendo, salir, win, 'Ninos')    
-        #paso
-        paso=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/paso.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        paso.set_from_pixbuf(scaled_pixbuf)
-        pasob=gtk.Button()
-        pasob.add(paso)
-        pasob.connect('clicked', self.detalle, conociendo, salir, win, 'paso')  
-        #Pendiente(ascendente)
-        pendienteas=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/Pendiente(ascendente).gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        pendienteas.set_from_pixbuf(scaled_pixbuf)
-        pendienteasb=gtk.Button()
-        pendienteasb.add(pendienteas)
-        pendienteasb.connect('clicked', self.detalle, conociendo, salir, win, 'Pendiente(ascendente)')  
-        #Pendiente(descendente)
-        pendientedes=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/Pendienteabajo.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        pendientedes.set_from_pixbuf(scaled_pixbuf)
-        pendientedesb=gtk.Button()
-        pendientedesb.add(pendientedes)
-        pendientedesb.connect('clicked', self.detalle, conociendo, salir, win, 'Pendienteabajo')    
-        #Perfil(Irregular)
-        perfilirre=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/Perfilirregular.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        perfilirre.set_from_pixbuf(scaled_pixbuf)
-        perfilirreb=gtk.Button()
-        perfilirreb.add(perfilirre)
-        perfilirreb.connect('clicked', self.detalle, conociendo, salir, win, 'Perfilirregular') 
-        #Perfil(Irregular2)
-        perfilirre2=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/perfilirregular2.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        perfilirre2.set_from_pixbuf(scaled_pixbuf)
-        perfilirre2b=gtk.Button()
-        perfilirre2b.add(perfilirre2)
-        perfilirre2b.connect('clicked', self.detalle, conociendo, salir, win, 'perfilirregular2')   
-        #perfil-irregular-lomada
-        perfilirre3=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/perfil-irregular-lomada.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        perfilirre3.set_from_pixbuf(scaled_pixbuf)
-        perfilirre3b=gtk.Button()
-        perfilirre3b.add(perfilirre3)
-        perfilirre3b.connect('clicked', self.detalle, conociendo, salir, win, 'perfil-irregular-lomada')    
-        #presencia-de-tranvia
-        presencia=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/presencia-de-tranvia.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        presencia.set_from_pixbuf(scaled_pixbuf)
-        presenciab=gtk.Button()
-        presenciab.add(presencia)
-        presenciab.connect('clicked', self.detalle, conociendo, salir, win, 'presencia-de-tranvia') 
-
-        
-        #proximidad-de-pare
-        proximidadpare=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/proximidad-de-pare.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        proximidadpare.set_from_pixbuf(scaled_pixbuf)
-        proximidadpareb=gtk.Button()
-        proximidadpareb.add(proximidadpare)
-        proximidadpareb.connect('clicked', self.detalle, conociendo, salir, win, 'proximidad-de-pare')  
-        #proximidad-restrictiva
-        prestrictiva=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/proximidad-restrictiva.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        prestrictiva.set_from_pixbuf(scaled_pixbuf)
-        prestrictivab=gtk.Button()
-        prestrictivab.add(prestrictiva)
-        prestrictivab.connect('clicked', self.detalle, conociendo, salir, win, 'proximidad-restrictiva')    
-        #proyeccion-de-piedras
-        proyeccion=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/proyeccion-de-piedras.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        proyeccion.set_from_pixbuf(scaled_pixbuf)
-        proyeccionb=gtk.Button()
-        proyeccionb.add(proyeccion)
-        proyeccionb.connect('clicked', self.detalle, conociendo, salir, win, 'proyeccion-de-piedras')   
-        #puente-angosto
-        puenteangosto=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/puente-angosto.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        puenteangosto.set_from_pixbuf(scaled_pixbuf)
-        puenteangostob=gtk.Button()
-        puenteangostob.add(puenteangosto)
-        puenteangostob.connect('clicked', self.detalle, conociendo, salir, win, 'puente-angosto')   
-        #puente-movil
-        puentemovil=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/puente-movil.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        puentemovil.set_from_pixbuf(scaled_pixbuf)
-        puentemovilb=gtk.Button()
-        puentemovilb.add(puentemovil)
-        puentemovilb.connect('clicked', self.detalle, conociendo, salir, win, 'puente-movil')   
-        #rotonda
-        rotonda=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/rotonda.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        rotonda.set_from_pixbuf(scaled_pixbuf)
-        rotondab=gtk.Button()
-        rotondab.add(rotonda)
-        rotondab.connect('clicked', self.detalle, conociendo, salir, win, 'rotonda')    
-        #semaforo
-        semaforoo=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/semaforo.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        semaforoo.set_from_pixbuf(scaled_pixbuf)
-        semaforoob=gtk.Button()
-        semaforoob.add(semaforoo)
-        semaforoob.connect('clicked', self.detalle, conociendo, salir, win, 'semaforo') 
-        #tractor
-        tractor=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/tractor.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        tractor.set_from_pixbuf(scaled_pixbuf)
-        tractorb=gtk.Button()
-        tractorb.add(tractor)
-        tractorb.connect('clicked', self.detalle, conociendo, salir, win, 'tractor')    
-        #tunel
-        tunel=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/tunel.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        tunel.set_from_pixbuf(scaled_pixbuf)
-        tunelb=gtk.Button()
-        tunelb.add(tunel)
-        tunelb.connect('clicked', self.detalle, conociendo, salir, win, 'tunel')    
-        #vientos-fuertes-laterales
-        vientosfuertes=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/vientos-fuertes-laterales.gif')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        vientosfuertes.set_from_pixbuf(scaled_pixbuf)
-        vientosfuertesb=gtk.Button()
-        vientosfuertesb.add(vientosfuertes)
-        vientosfuertesb.connect('clicked', self.detalle, conociendo, salir, win, 'vientos-fuertes-laterales')   
-        
-        #Reglamentarias Imagenes y botones
-
-        #circulacion_exclusiva_peatones
-        circulacion_exlusiva_peatonesb=gtk.Button() 
-        circulacion_exlusiva_peatones=gtk.Image()
-        reglamentariasV2.add(circulacion_exlusiva_peatonesb)
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/reglamentarias/circulacion_exlusiva_peatones.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        circulacion_exlusiva_peatones.set_from_pixbuf(scaled_pixbuf)
-        circulacion_exlusiva_peatonesb.add(circulacion_exlusiva_peatones)
-        circulacion_exlusiva_peatonesb.connect('clicked', self.detalle, conociendo, salir, win, 'circulacion_exlusiva_peatones')
-        #circulaion_exlusica_bicicletas
-        circulaion_exlusica_bicicletas=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/reglamentarias/circulaion_exlusica_bicicletas.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        circulaion_exlusica_bicicletas.set_from_pixbuf(scaled_pixbuf)
-        circulaion_exlusica_bicicletasb=gtk.Button()
-        circulaion_exlusica_bicicletasb.add(circulaion_exlusica_bicicletas)
-        reglamentariasV2.add(circulaion_exlusica_bicicletasb)
-        circulaion_exlusica_bicicletasb.connect('clicked', self.detalle, conociendo, salir, win, 'circulaion_exlusica_bicicletas')
-
-            #circulaion_exlusica_jinetes
-        circulaion_exlusica_jinetes=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/reglamentarias/circulaion_exlusica_jinetes.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        circulaion_exlusica_jinetes.set_from_pixbuf(scaled_pixbuf)
-        circulaion_exlusica_jinetesb=gtk.Button()
-        circulaion_exlusica_jinetesb.add(circulaion_exlusica_jinetes)
-        reglamentariasV2.add(circulaion_exlusica_jinetesb)
-        circulaion_exlusica_jinetesb.connect('clicked', self.detalle, conociendo, salir, win, 'circulaion_exlusica_jinetes')
-
-        #circulaion_exlusica_trans.publico
-        circulaion_exlusica_transpublico=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/reglamentarias/circula_colectivo.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        circulaion_exlusica_transpublico.set_from_pixbuf(scaled_pixbuf)
-        circulaion_exlusica_transpublicob=gtk.Button()
-        circulaion_exlusica_transpublicob.add(circulaion_exlusica_transpublico)
-        reglamentariasV2.add(circulaion_exlusica_transpublicob)
-        circulaion_exlusica_transpublicob.connect('clicked', self.detalle, conociendo, salir, win, 'circula_colectivo')
-        #circulaion_exlusiva_motos
-        circulaion_exlusiva_motos=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/reglamentarias/circulaion_exlusiva_motos.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        circulaion_exlusiva_motos.set_from_pixbuf(scaled_pixbuf)
-        circulaion_exlusiva_motosb=gtk.Button()
-        circulaion_exlusiva_motosb.add(circulaion_exlusiva_motos)
-        reglamentariasV2.add(circulaion_exlusiva_motosb)
-        circulaion_exlusiva_motosb.connect('clicked', self.detalle, conociendo, salir, win, 'circulaion_exlusiva_motos')
-        #contramano
-        contramano=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/reglamentarias/contramano.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        contramano.set_from_pixbuf(scaled_pixbuf)
-        contramanob=gtk.Button()
-        contramanob.add(contramano)
-        reglamentariasV2.add(contramanob)
-        contramanob.connect('clicked', self.detalle, conociendo, salir, win, 'contramano')
-        #estacionamiento_exclusivo
-        estacionamiento_exclusivo=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/reglamentarias/estacionamiento_exclusivo.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        estacionamiento_exclusivo.set_from_pixbuf(scaled_pixbuf)
-        estacionamiento_exclusivob=gtk.Button()
-        estacionamiento_exclusivob.add(estacionamiento_exclusivo)
-        reglamentariasV2.add(estacionamiento_exclusivob)
-        estacionamiento_exclusivob.connect('clicked', self.detalle, conociendo, salir, win, 'estacionamiento_exclusivo')
-        #limitacion_de_altura
-        limitacion_de_altura=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/reglamentarias/limitacion_de_altura.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        limitacion_de_altura.set_from_pixbuf(scaled_pixbuf)
-        limitacion_de_alturab=gtk.Button()
-        limitacion_de_alturab.add(limitacion_de_altura)
-        reglamentariasV2.add(limitacion_de_alturab)
-        limitacion_de_alturab.connect('clicked', self.detalle, conociendo, salir, win, 'limitacion_de_altura')
-        #limitacion_de_ancho
-        limitacion_de_ancho=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/reglamentarias/limitacion_de_ancho.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        limitacion_de_ancho.set_from_pixbuf(scaled_pixbuf)
-        limitacion_de_anchob=gtk.Button()
-        limitacion_de_anchob.add(limitacion_de_ancho)
-        reglamentariasV2.add(limitacion_de_anchob)
-        limitacion_de_anchob.connect('clicked', self.detalle, conociendo, salir, win, 'limitacion_de_ancho')
-        #limitacion_de_largo_de_vehiculo
-        limitacion_de_largo_de_vehiculo=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/reglamentarias/limitacion_de_largo_de_vehiculo.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        limitacion_de_largo_de_vehiculo.set_from_pixbuf(scaled_pixbuf)
-        limitacion_de_largo_de_vehiculob=gtk.Button()
-        limitacion_de_largo_de_vehiculob.add(limitacion_de_largo_de_vehiculo)
-        reglamentariasV2.add(limitacion_de_largo_de_vehiculob)
-        limitacion_de_largo_de_vehiculob.connect('clicked', self.detalle, conociendo, salir, win, 'limitacion_de_largo_de_vehiculo')
-        #limitacion_de_peso
-        limitacion_de_peso=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/reglamentarias/limitacion_de_peso.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        limitacion_de_peso.set_from_pixbuf(scaled_pixbuf)
-        limitacion_de_pesob=gtk.Button()
-        limitacion_de_pesob.add(limitacion_de_peso)
-        reglamentariasV2.add(limitacion_de_pesob)
-        limitacion_de_pesob.connect('clicked', self.detalle, conociendo, salir, win, 'limitacion_de_peso')
-
-        #limitacion_de_peso_2
-        limitacion_de_peso_2=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/reglamentarias/limitacion_de_peso_2.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        limitacion_de_peso_2.set_from_pixbuf(scaled_pixbuf)
-        limitacion_de_peso_2b=gtk.Button()
-        limitacion_de_peso_2b.add(limitacion_de_peso_2)
-        reglamentariasV3.add(limitacion_de_peso_2b)
-        limitacion_de_peso_2b.connect('clicked', self.detalle, conociendo, salir, win, 'limitacion_de_peso_2')
-        #limite_de_velocidad_maxima
-        limite_de_velocidad_maxima=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/reglamentarias/limite_de_velocidad_maxima.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        limite_de_velocidad_maxima.set_from_pixbuf(scaled_pixbuf)
-        limite_de_velocidad_maximab=gtk.Button()
-        limite_de_velocidad_maximab.add(limite_de_velocidad_maxima)
-        reglamentariasV3.add(limite_de_velocidad_maximab)
-        limite_de_velocidad_maximab.connect('clicked', self.detalle, conociendo, salir, win, 'limite_de_velocidad_maxima')
-        #limite_de_velocidad_minima
-        limite_de_velocidad_minima=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/reglamentarias/limite_de_velocidad_minima.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        limite_de_velocidad_minima.set_from_pixbuf(scaled_pixbuf)
-        limite_de_velocidad_minimab=gtk.Button()
-        limite_de_velocidad_minimab.add(limite_de_velocidad_minima)
-        reglamentariasV3.add(limite_de_velocidad_minimab)
-        limite_de_velocidad_minimab.connect('clicked', self.detalle, conociendo, salir, win, 'limite_de_velocidad_minima')
-        #no_avanzar
-        no_avanzar=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/reglamentarias/no_avanzar.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        no_avanzar.set_from_pixbuf(scaled_pixbuf)
-        no_avanzarb=gtk.Button()
-        no_avanzarb.add(no_avanzar)
-        reglamentariasV3.add(no_avanzarb)
-        no_avanzarb.connect('clicked', self.detalle, conociendo, salir, win, 'no_avanzar')
-        #no_estacionar
-        no_estacionar=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/reglamentarias/no_estacionar.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        no_estacionar.set_from_pixbuf(scaled_pixbuf)
-        no_estacionarb=gtk.Button()
-        no_estacionarb.add(no_estacionar)
-        reglamentariasV3.add(no_estacionarb)
-        no_estacionarb.connect('clicked', self.detalle, conociendo, salir, win, 'no_estacionar')
-        #no_estacionar_ni_detenerse
-        no_estacionar_ni_detenerse=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/reglamentarias/no_estacionar_ni_detenerse.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        no_estacionar_ni_detenerse.set_from_pixbuf(scaled_pixbuf)
-        no_estacionar_ni_detenerseb=gtk.Button()
-        no_estacionar_ni_detenerseb.add(no_estacionar_ni_detenerse)
-        reglamentariasV3.add(no_estacionar_ni_detenerseb)
-        no_estacionar_ni_detenerseb.connect('clicked', self.detalle, conociendo, salir, win, 'no_estacionar_ni_detenerse')
-
-        #no_girar_a_la_derecha
-        no_girar_a_la_derecha=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/reglamentarias/no_girar_a_la_derecha.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        no_girar_a_la_derecha.set_from_pixbuf(scaled_pixbuf)
-        no_girar_a_la_derechab=gtk.Button()
-        no_girar_a_la_derechab.add(no_girar_a_la_derecha)
-        reglamentariasV3.add(no_girar_a_la_derechab)
-        no_girar_a_la_derechab.connect('clicked', self.detalle, conociendo, salir, win, 'no_girar_a_la_derecha')
-        #no_girar_a_la_izquierda
-        no_girar_a_la_izquierda=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/reglamentarias/no_girar_a_la_izquierda.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        no_girar_a_la_izquierda.set_from_pixbuf(scaled_pixbuf)
-        no_girar_a_la_izquierdab=gtk.Button()
-        no_girar_a_la_izquierdab.add(no_girar_a_la_izquierda)
-        reglamentariasV3.add(no_girar_a_la_izquierdab)
-        no_girar_a_la_izquierdab.connect('clicked', self.detalle, conociendo, salir, win, 'no_girar_a_la_izquierda')
-        #no_girar_en_u
-        no_girar_en_u=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/reglamentarias/no_girar_en_u.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        no_girar_en_u.set_from_pixbuf(scaled_pixbuf)
-        no_girar_en_ub=gtk.Button()
-        no_girar_en_ub.add(no_girar_en_u)
-        reglamentariasV3.add(no_girar_en_ub)
-        no_girar_en_ub.connect('clicked', self.detalle, conociendo, salir, win, 'no_girar_en_u')
-        #no_ruido_molesto
-        no_ruido_molesto=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/reglamentarias/no_ruido_molesto.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        no_ruido_molesto.set_from_pixbuf(scaled_pixbuf)
-        no_ruido_molestob=gtk.Button()
-        no_ruido_molestob.add(no_ruido_molesto)
-        reglamentariasV3.add(no_ruido_molestob)
-        no_ruido_molestob.connect('clicked', self.detalle, conociendo, salir, win, 'no_ruido_molesto')
-        #prohibicion_de_cambiar_de_carril
-        prohibicion_de_cambiar_de_carril=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/reglamentarias/prohibicion_de_cambiar_de_carril.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        prohibicion_de_cambiar_de_carril.set_from_pixbuf(scaled_pixbuf)
-        prohibicion_de_cambiar_de_carrilb=gtk.Button()
-        prohibicion_de_cambiar_de_carrilb.add(prohibicion_de_cambiar_de_carril)
-        reglamentariasV3.add(prohibicion_de_cambiar_de_carrilb)
-        prohibicion_de_cambiar_de_carrilb.connect('clicked', self.detalle, conociendo, salir, win, 'prohibicion_de_cambiar_de_carril')
-        #prohibicion_de_circular_acoplado
-        prohibicion_de_circular_acoplado=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/reglamentarias/prohibicion_de_circular_acoplado.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        prohibicion_de_circular_acoplado.set_from_pixbuf(scaled_pixbuf)
-        prohibicion_de_circular_acopladob=gtk.Button()
-        prohibicion_de_circular_acopladob.add(prohibicion_de_circular_acoplado)
-        reglamentariasV4.add(prohibicion_de_circular_acopladob)
-        prohibicion_de_circular_acopladob.connect('clicked', self.detalle, conociendo, salir, win, 'prohibicion_de_circular_acoplado')
-        #prohibicion_de_circular_animal
-        prohibicion_de_circular_animal=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/reglamentarias/prohibicion_de_circular_animal.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        prohibicion_de_circular_animal.set_from_pixbuf(scaled_pixbuf)
-        prohibicion_de_circular_animalb=gtk.Button()
-        prohibicion_de_circular_animalb.add(prohibicion_de_circular_animal)
-        reglamentariasV4.add(prohibicion_de_circular_animalb)
-        prohibicion_de_circular_animalb.connect('clicked', self.detalle, conociendo, salir, win, 'prohibicion_de_circular_animal')
-        #prohibicion_de_circular_autos
-        prohibicion_de_circular_autos=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/reglamentarias/prohibicion_de_circular_autos.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        prohibicion_de_circular_autos.set_from_pixbuf(scaled_pixbuf)
-        prohibicion_de_circular_autosb=gtk.Button()
-        prohibicion_de_circular_autosb.add(prohibicion_de_circular_autos)
-        reglamentariasV4.add(prohibicion_de_circular_autosb)
-        prohibicion_de_circular_autosb.connect('clicked', self.detalle, conociendo, salir, win, 'prohibicion_de_circular_autos')
-        #prohibicion_de_circular_bicibletas
-        prohibicion_de_circular_bicibletas=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/reglamentarias/prohibicion_de_circular_bicibletas.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        prohibicion_de_circular_bicibletas.set_from_pixbuf(scaled_pixbuf)
-        prohibicion_de_circular_bicibletasb=gtk.Button()
-        prohibicion_de_circular_bicibletasb.add(prohibicion_de_circular_bicibletas)
-        reglamentariasV4.add(prohibicion_de_circular_bicibletasb)
-        prohibicion_de_circular_bicibletasb.connect('clicked', self.detalle, conociendo, salir, win, 'prohibicion_de_circular_bicibletas')
-        #prohibicion_de_circular_camion
-        prohibicion_de_circular_camion=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/reglamentarias/prohibicion_de_circular_camion.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        prohibicion_de_circular_camion.set_from_pixbuf(scaled_pixbuf)
-        prohibicion_de_circular_camionb=gtk.Button()
-        prohibicion_de_circular_camionb.add(prohibicion_de_circular_camion)
-        reglamentariasV4.add(prohibicion_de_circular_camionb)
-        prohibicion_de_circular_camionb.connect('clicked', self.detalle, conociendo, salir, win, 'prohibicion_de_circular_camion')
-        #prohibicion_de_circular_carro_mano
-        prohibicion_de_circular_carro_mano=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/reglamentarias/prohibicion_de_circular_carro_mano.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        prohibicion_de_circular_carro_mano.set_from_pixbuf(scaled_pixbuf)
-        prohibicion_de_circular_carro_manob=gtk.Button()
-        prohibicion_de_circular_carro_manob.add(prohibicion_de_circular_carro_mano)
-        reglamentariasV4.add(prohibicion_de_circular_carro_manob)
-        prohibicion_de_circular_carro_manob.connect('clicked', self.detalle, conociendo, salir, win, 'prohibicion_de_circular_carro_mano')
-        #prohibicion_de_circular_motos
-        prohibicion_de_circular_motos=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/reglamentarias/prohibicion_de_circular_motos.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        prohibicion_de_circular_motos.set_from_pixbuf(scaled_pixbuf)
-        prohibicion_de_circular_motosb=gtk.Button()
-        prohibicion_de_circular_motosb.add(prohibicion_de_circular_motos)
-        reglamentariasV4.add(prohibicion_de_circular_motosb)
-        prohibicion_de_circular_motosb.connect('clicked', self.detalle, conociendo, salir, win, 'prohibicion_de_circular_motos')
-        #prohibicion_de_circular_peaton
-        prohibicion_de_circular_peaton=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/reglamentarias/prohibicion_de_circular_peaton.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        prohibicion_de_circular_peaton.set_from_pixbuf(scaled_pixbuf)
-        prohibicion_de_circular_peatonb=gtk.Button()
-        prohibicion_de_circular_peatonb.add(prohibicion_de_circular_peaton)
-        reglamentariasV4.add(prohibicion_de_circular_peatonb)
-        prohibicion_de_circular_peatonb.connect('clicked', self.detalle, conociendo, salir, win, 'prohibicion_de_circular_peaton')
-        #prohibicion_de_circular_trac.an
-        prohibicion_de_circular_tracan=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/reglamentarias/prohibicion_de_circular_trac.an.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        prohibicion_de_circular_tracan.set_from_pixbuf(scaled_pixbuf)
-        prohibicion_de_circular_tracanb=gtk.Button()
-        prohibicion_de_circular_tracanb.add(prohibicion_de_circular_tracan)
-        reglamentariasV4.add(prohibicion_de_circular_tracanb)
-        prohibicion_de_circular_tracanb.connect('clicked', self.detalle, conociendo, salir, win, 'prohibicion_de_circular_trac.an')
-        #prohibicion_de_circular_tractor
-        prohibicion_de_circular_tractor=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/reglamentarias/prohibicion_de_circular_tractor.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        prohibicion_de_circular_tractor.set_from_pixbuf(scaled_pixbuf)
-        prohibicion_de_circular_tractorb=gtk.Button()
-        prohibicion_de_circular_tractorb.add(prohibicion_de_circular_tractor)
-        reglamentariasV4.add(prohibicion_de_circular_tractorb)
-        prohibicion_de_circular_tractorb.connect('clicked', self.detalle, conociendo, salir, win, 'prohibicion_de_circular_tractor')
-        #prohibido_adelantar
-        prohibido_adelantar=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/reglamentarias/prohibido_adelantar.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        prohibido_adelantar.set_from_pixbuf(scaled_pixbuf)
-        prohibido_adelantarb=gtk.Button()
-        prohibido_adelantarb.add(prohibido_adelantar)
-        reglamentariasV4.add(prohibido_adelantarb)
-        prohibido_adelantarb.connect('clicked', self.detalle, conociendo, salir, win, 'prohibido_adelantar')
-        #Atencion
-        Atencion = gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/Atencion.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        Atencion.set_from_pixbuf(scaled_pixbuf)
-        Atencionb=gtk.Button()
-        Atencionb.add(Atencion)
-        preventivasimg2.add(Atencionb)
-        Atencionb.connect('clicked', self.detalle, conociendo, salir, win, 'Atencion')
-            #Cruce de_Peatoes
-        Cruce_de_Peatoes=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/Cruce_de_Peatoes.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        Cruce_de_Peatoes.set_from_pixbuf(scaled_pixbuf)
-        Cruce_de_Peatoesb=gtk.Button()
-        Cruce_de_Peatoesb.add(Cruce_de_Peatoes)
-        preventivasimg2.add(Cruce_de_Peatoesb)
-        Cruce_de_Peatoesb.connect('clicked', self.detalle, conociendo, salir, win, 'Cruce_de_Peatoes')
-             #Cruce_ferrioviario
-        Cruce_ferrioviario=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/Cruce_ferrioviario.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        Cruce_ferrioviario.set_from_pixbuf(scaled_pixbuf)
-        Cruce_ferrioviariob=gtk.Button()
-        Cruce_ferrioviariob.add(Cruce_ferrioviario)
-        preventivasimg2.add(Cruce_ferrioviariob)
-        Cruce_ferrioviariob.connect('clicked', self.detalle, conociendo, salir, win, 'Cruce_ferrioviario')
-            #Curva_Cerrada
-        Curva_Cerrada=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/Curva_Cerrada.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        Curva_Cerrada.set_from_pixbuf(scaled_pixbuf)
-        Curva_Cerradab=gtk.Button()
-        Curva_Cerradab.add(Curva_Cerrada)
-        preventivasimg2.add(Curva_Cerradab)
-        Curva_Cerradab.connect('clicked', self.detalle, conociendo, salir, win, 'Curva_Cerrada')
-            #Cuz_de_San_Andres
-        Cuz_de_San_Andres=gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file('images/preventivas/Cuz_de_San_Andres.png')
-        scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-        Cuz_de_San_Andres.set_from_pixbuf(scaled_pixbuf)
-        Cuz_de_San_Andresb=gtk.Button()
-        Cuz_de_San_Andresb.add(Cuz_de_San_Andres)
-        preventivasimg2.add(Cuz_de_San_Andresb)
-        Cuz_de_San_Andresb.connect('clicked', self.detalle, conociendo, salir, win, 'Cuz_de_San_Andres')
-
-
-        #
-        #=gtk.Image()
-        #pixbuf = gtk.gdk.pixbuf_new_from_file('images/reglamentarias/.png')
-        #scaled_pixbuf = pixbuf.scale_simple(24,24,gtk.gdk.INTERP_BILINEAR)
-            #.set_from_pixbuf(scaled_pixbuf)
-        #=gtk.Button()
-        ##.add()
-        #reglamentariasV3.add()
-
-
-        #Add's
-        #Informativas
-        infomage.add(infomage1)
-        infomage1.add(aeropuertob)
-        infomage1.add(cssb)
-        infomage1.add(balneariob)
-        infomage1.add(barb)
-        infomage1.add(css2b)
-        infomage1.add(ptb)
-        infomage1.add(campamentob)
-        infomage1.add(cdab)
-        infomage1.add(correob)
-        infomage1.add(dcsb)
-        infomage1.add(dp1b)
-        infomage1.add(dp2b)
-        infomage1.add(dp3b)
-        infomage1.add(dp4b)
-        infomage1.add(dp5b)
-        infomage.add(infomage2) 
-        infomage2.add(dp6b)
-        infomage2.add(edrb)
-        infomage2.add(estacionamientob)
-        infomage2.add(estacionamiento2b)
-        infomage2.add(estacionamiento3b)
-        infomage2.add(estacionb)
-        infomage2.add(estacion2b)
-        infomage2.add(finab)
-        infomage2.add(gomeriab)
-        infomage2.add(hotelb)
-        infomage2.add(indicadoresb)
-        infomage2.add(recreacionb)
-        infomage2.add(museob)
-        infomage2.add(paradab)
-        infomage2.add(pt2b)
-        infomage.add(infomage3)
-        infomage3.add(pgdb)
-        infomage3.add(pgib)
-        infomage3.add(playab)
-        infomage3.add(plazab)
-        infomage3.add(policiab)
-        infomage3.add(psb)
-        infomage3.add(ppb)
-        infomage3.add(restauranteb)
-        infomage3.add(mecanicob)
-        infomage3.add(telefonob)
-        infomage3.add(taxib)
-        infomage3.add(telefericob)
-        infomage3.add(terminalb)
-        infomage3.add(velocidadesb)
-        infomage3.add(b)
-        #Preventivas
-        preventivasimg.add(preventivasimg1)
-        preventivasimg1.add(alturalb)
-        preventivasimg1.add(ambulanciab)
-        preventivasimg1.add(ancholb)
-        preventivasimg1.add(ascb)
-        preventivasimg1.add(asvb)
-        preventivasimg1.add(cdb)
-        preventivasimg1.add(crb)
-        preventivasimg1.add(caminosb)
-        preventivasimg1.add(ciclistab)
-        preventivasimg1.add(corredorab)
-        preventivasimg1.add(contracurvab)
-        preventivasimg1.add(curvaensb)
-        preventivasimg1.add(derrumbesb)
-        preventivasimg1.add(enbib)
-        preventivasimg1.add(vientosfuertesb)
-        preventivasimg1.add(pasob)
-        preventivasimg1.add(incorb)
-        preventivasimg3.add(curvacb)
-        preventivasimg.add(preventivasimg2) 
-        preventivasimg2.add(enbi2b)
-        preventivasimg2.add(enemb)
-        preventivasimg2.add(encrb)
-        preventivasimg2.add(escolaresb)
-        preventivasimg2.add(estrechamientomb)
-        preventivasimg2.add(estrechob)
-        preventivasimg2.add(flechadb)
-        preventivasimg2.add(flechad2b)
-        preventivasimg2.add(jineteb)
-        preventivasimg2.add(pendienteasb)
-        preventivasimg2.add(pendientedesb)
-        preventivasimg2.add(h)
-        preventivasimg.add(preventivasimg3)
-        preventivasimg3.add(perfilirreb)
-        preventivasimg3.add(perfilirre2b)
-        preventivasimg3.add(perfilirre3b)
-        preventivasimg3.add(presenciab)
-        preventivasimg3.add(proximidadpareb)
-        preventivasimg3.add(prestrictivab)
-        preventivasimg3.add(puenteangostob)
-        preventivasimg3.add(puentemovilb)
-        preventivasimg3.add(rotondab)
-        preventivasimg3.add(Ninosb) 
-        preventivasimg3.add(proyeccionb)              
-        preventivasimg3.add(semaforoob)
-        preventivasimg3.add(tractorb)
-        preventivasimg3.add(tunelb)
-        preventivasimg3.add(iniciodobleb)
-        preventivasimg3.add(g)
-        conociendo.add(bbox)
-        bbox.add(salir)
-        bbox.show_all()
-        conociendo.show_all()
-
-    def detalle(self, boton, conociendo, salir, win, data):
-        for conociendo in win.get_children(): win.remove(conociendo)
-        self.windows = gtk.Window(gtk.WINDOW_TOPLEVEL)
-        self.windows.connect("destroy", lambda w: gtk.main_quit())  	
-
-        parser=SafeConfigParser()
+        # Parser
+        parser = SafeConfigParser()
         parser.read('Config.ini')
-        detalle = gtk.VBox()
-        titulo = gtk.Label(parser.get(data,'titulo'))
-        imagesenal = gtk.Image()
-        info = gtk.TextView()
-        info.set_wrap_mode(gtk.WRAP_WORD)
+
+        self.menu = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        title = Gtk.Label('Senales de transito')
+        inicio = Gtk.Image()
+        conoce = Gtk.Button(parser.get('botones', 'a'))
+        sabes = Gtk.Button(parser.get('botones', 'b'))
+        sabias = Gtk.Button(parser.get('botones', 'c'))
+        # self.fondo = Gtk.EventBox()
+        # self.fondo.modify_bg(Gtk.StateType.NORMAL, Gdk.color_parse('White'))
+
+        # Conexiones
+        pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(
+            'images/inicio.gif', 250, 250)
+        inicio.set_from_pixbuf(pixbuf)
+        conoce.connect('clicked', self.conoceme)
+        sabes.connect('clicked', self.initi)
+        sabias.connect('clicked', self.futurista)
+
+        # Diseno
+        self.menu.pack_start(title, False, False, 5)
+        self.menu.pack_start(inicio, True, True, 10)
+        self.menu.pack_start(conoce, False, False, 5)
+        self.menu.pack_start(sabes, False, False, 5)
+        self.menu.pack_start(sabias, False, False, 5)
+
+    def conoceme(self, widget):
+        if not self.conociendo:
+            self.crear_widget_conoceme()
+
+        self.limpiar_ventana()
+        self.widget_principal.add(self.conociendo)
+        self.show_all()
+
+    def crear_widget_conoceme(self):
+        self.conociendo = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+
+        informativas_frame = Gtk.Frame(label='Informativas')
+        informativas_frame.set_shadow_type(Gtk.ShadowType.ETCHED_OUT)
+        informativas_frame.set_size_request(250, 300)
+        informativas_frame.props.margin = 10
+
+        preventivas_frame = Gtk.Frame(label='Preventivas')
+        preventivas_frame.set_shadow_type(Gtk.ShadowType.ETCHED_OUT)
+        preventivas_frame.set_size_request(250, 300)
+        preventivas_frame.props.margin = 10
+
+        reglamentarias_frame = Gtk.Frame(label='Reglamentarias')
+        reglamentarias_frame.set_shadow_type(Gtk.ShadowType.ETCHED_OUT)
+        reglamentarias_frame.set_size_request(250, 300)
+        reglamentarias_frame.props.margin = 10
+
+        self.conociendo.pack_start(informativas_frame, False, False, 0)
+        self.conociendo.pack_start(preventivas_frame, False, False, 0)
+        self.conociendo.pack_start(reglamentarias_frame, False, False, 0)
+
+        # Conexiones
+        salir = Gtk.Button('Inicio')
+        salir.set_size_request(30, 30)
+        salir.connect('clicked', self.entrar_a_menu)
+
+        informativas = Gtk.Grid()
+        preventivas = Gtk.Grid()
+        reglamentarias = Gtk.Grid()
+
+        # ScrolledWindow's para los grids.
+        scrolled_informativas = Gtk.ScrolledWindow()
+        scrolled_informativas.set_border_width(10)
+        scrolled_informativas.add_with_viewport(informativas)
+        informativas_frame.add(scrolled_informativas)
+
+        scrolled_preventivas = Gtk.ScrolledWindow()
+        scrolled_preventivas.set_border_width(10)
+        scrolled_preventivas.add_with_viewport(preventivas)
+        preventivas_frame.add(scrolled_preventivas)
+
+        scrolled_reglamentarias = Gtk.ScrolledWindow()
+        scrolled_reglamentarias.set_border_width(10)
+        scrolled_reglamentarias.add_with_viewport(reglamentarias)
+        reglamentarias_frame.add(scrolled_reglamentarias)
+
+        self.conociendo.pack_start(informativas_frame, False, False, 0)
+        self.conociendo.pack_start(preventivas_frame, False, False, 0)
+        self.conociendo.pack_start(reglamentarias_frame, False, False, 0)
+
+        salir_bbox = Gtk.ButtonBox(orientation=Gtk.Orientation.HORIZONTAL)
+        salir_bbox.set_layout(Gtk.ButtonBoxStyle.CENTER)
+        salir_bbox.add(salir)
+        salir_bbox.props.margin = 10
+        self.conociendo.pack_end(salir_bbox, False, False, 0)
+
+        # señales, cargadas desde el archivo json
+        f = open("senales.json", "r")
+        seniales = json.load(f)
+        f.close()
+
+        for senial in seniales:
+            path, x, y, tipo = seniales[senial]
+
+            pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(path, 32, 32)
+            imagen = Gtk.Image.new_from_pixbuf(pixbuf)
+            boton = Gtk.Button()
+            boton.add(imagen)
+            boton.set_tooltip_text(senial)
+            boton.connect(
+                'clicked',
+                self.detalle,
+                senial)
+
+            grids = {"Reglamentaria": reglamentarias,
+                     "Informativa": informativas,
+                     "Preventiva": preventivas}
+            grids[tipo].attach(boton, x, y, 1, 1)
+
+            boton.show_all()
+
+    def limpiar_ventana(self):
+        for widget in self.widget_principal.get_children():
+            self.widget_principal.remove(widget)
+
+    def detalle(self, boton, data):
+        self.limpiar_ventana()
+
+        parser = SafeConfigParser()
+        parser.read('Config.ini')
+
+        detalle = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        titulo = Gtk.Label(parser.get(data, 'titulo'))
+
+        info = Gtk.TextView()
+        info.set_wrap_mode(Gtk.WrapMode.WORD)
         info.set_editable(False)
+
         textbuffer = info.get_buffer()
-        textbuffer.set_text(parser.get(data,'info'))
-        quit = gtk.Button('Salir')
-        pixbuf = gtk.gdk.pixbuf_new_from_file(parser.get(data,'image'))
-        scaled_pixbuf = pixbuf.scale_simple(400,400,gtk.gdk.INTERP_BILINEAR)
-        imagesenal.set_from_pixbuf(scaled_pixbuf)
-        quit.connect('clicked',self.volver, detalle, conociendo)
+        textbuffer.set_text(parser.get(data, 'info'))
+        quit = Gtk.Button('Salir')
 
-        win.add(detalle)
-        detalle.add(titulo)
-        detalle.add(imagesenal) 
-        detalle.add(info)
-        detalle.add(quit)
-        win.show_all()
-    
-    def volver(self,win,detalle,conociendo):
-    	for detalle in win.get_children(): win.remove(detalle)
-       	win.add(conociendo)
-        win.show_all()
-    def exit(self,win,vbox,menu):
-        for vbox in win.get_children(): win.remove(vbox)
-        win.add(menu)
-        win.show_all()
-    def salir1(self,win,menu,historia):	
-        for historia in win.get_children(): win.remove(historia)        
-        win.add(menu)
-       	win.show_all()
-    def futurista(self,menu,win,ram,conociendo):
-        win.remove(menu)
-        self.windows = gtk.Window(gtk.WINDOW_TOPLEVEL)
-        self.windows.connect("destroy", lambda w: gtk.main_quit())
-        parser=SafeConfigParser()
+        pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(
+            parser.get(data, 'image'), 250, 250)
+
+        imagesenal = Gtk.Image.new_from_pixbuf(pixbuf)
+
+        quit.connect('clicked', self.conoceme)
+
+        detalle.pack_start(titulo, False, False, 0)
+        detalle.pack_start(imagesenal, False, False, 10)
+        detalle.pack_start(info, True, True, 10)
+        detalle.pack_start(quit, False, False, 5)
+
+        self.widget_principal.add(detalle)
+        self.show_all()
+
+    def futurista(self, widget):
+        self.limpiar_ventana()
+
+        ran = random.randint(1, 6)
+        parser = SafeConfigParser()
         parser.read('Config.ini')
-        historia = gtk.VBox()
-        win.add(historia)
-        title = gtk.Label(parser.get('historia' + str (ram),'title'))
+        historia = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        title = Gtk.Label(parser.get('historia' + str(ran), 'title'))
 
-        imagehistory = gtk.Image()
-        infohistory = gtk.TextView()
-        infohistory.set_wrap_mode(gtk.WRAP_WORD)
+        imagehistory = Gtk.Image()
+        infohistory = Gtk.TextView()
+        infohistory.set_wrap_mode(Gtk.WrapMode.WORD)
         infohistory.set_editable(False)
-        textbuffer = infohistory.get_buffer()
-        textbuffer.set_text(parser.get('historia' + str (ram),'h'))
-        quiti = gtk.Button('Salir')
-        win.show_all()
-        historia.add(title) 
-        historia.add(imagehistory)
-        historia.add(infohistory)
-        historia.add(quiti)
 
-        pixbuf = gtk.gdk.pixbuf_new_from_file(parser.get('historia' + str (ram),'image'))
-        scaled_pixbuf = pixbuf.scale_simple(400,400,gtk.gdk.INTERP_BILINEAR)
-        imagehistory.set_from_pixbuf(scaled_pixbuf)
-        
-        historia.show_all()
-        quiti.connect('clicked',self.salir1,menu,historia,)
-       
-    def salir(self, salir, menu, win, conociendo):
-    	win.remove(conociendo)
-        win.add(menu)
-        win.show_all()
-        
-    def initi(self, sabes,win,menu):
-        for menu in win.get_children(): win.remove(menu)
-        image = gtk.Image()
-        vbox = gtk.VBox()
-        hbox = gtk.HBox()
-        win.add(vbox)
-        button_0 = gtk.Label()
-        button_1 = gtk.Button()
-        button_2 = gtk.Button()
-        button_3 = gtk.Button()
-        bexit = gtk.Button('Atras')
-        vbox.add(button_0)
-        vbox.add(image)
-        vbox.add(hbox)
-        hbox.add(button_1)
-        hbox.add(button_2)
-        hbox.add(button_3)
-        bboxt = gtk.HButtonBox()	
-        bboxt.set_layout(gtk.BUTTONBOX_CENTER)
+        textbuffer = infohistory.get_buffer()
+        textbuffer.set_text(parser.get('historia' + str(ran), 'h'))
+
+        quiti = Gtk.Button('Salir')
+        quiti.connect('clicked', self.entrar_a_menu)
+
+        historia.pack_start(title, False, False, 0)
+        historia.pack_start(imagehistory, False, False, 10)
+        historia.pack_start(infohistory, True, True, 10)
+        historia.pack_start(quiti, False, False, 0)
+
+        pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(
+            parser.get('historia' + str(ran), 'image'), 250, 250)
+        imagehistory.set_from_pixbuf(pixbuf)
+
+        self.widget_principal.add(historia)
+        self.show_all()
+
+    def initi(self, widget):
+        self.limpiar_ventana()
+
+        image = Gtk.Image()
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        button_0 = Gtk.Label()
+        button_1 = Gtk.Button()
+        button_2 = Gtk.Button()
+        button_3 = Gtk.Button()
+
+        bexit = Gtk.Button('Atras')
+        vbox.pack_start(button_0, False, False, 0)
+        vbox.pack_start(image, True, True, 15)
+        vbox.pack_start(hbox, False, False, 15)
+
+        hbox.pack_start(button_1, True, True, 0)
+        hbox.pack_start(button_2, True, True, 0)
+        hbox.pack_start(button_3, True, True, 0)
+
+        bboxt = Gtk.ButtonBox(orientation=Gtk.Orientation.HORIZONTAL)
+        bboxt.set_layout(Gtk.ButtonBoxStyle.CENTER)
         bboxt.add(bexit)
-        vbox.add(bboxt)
-        bexit.connect('clicked', self.exit,win,menu)
-        bboxt.show_all()
-        win.show_all()
-        self.puntaje=0
-        self.numero=random.randint(1,39)
-        self.anterior=self.numero
-        self.total=0
+        bexit.connect('clicked', self.entrar_a_menu)
+
+        vbox.pack_start(bboxt, True, True, 0)
+
+        self.puntaje = 0
+        self.numero = random.randint(1, 39)
+        self.anterior = self.numero
+        self.total = 0
         button_0.set_text('Comienza a Jugar!!')
         self.parser = SafeConfigParser()
         self.parser.read('trivia.ini')
-        
-        pixbuf = gtk.gdk.pixbuf_new_from_file(self.parser.get('pregunta'+str(self.numero), 'imagen'))
-        scaled_pixbuf = pixbuf.scale_simple(400,400,gtk.gdk.INTERP_BILINEAR)
-        image.set_from_pixbuf(scaled_pixbuf)
-        button_1.set_label(self.parser.get('pregunta'+str(self.numero), 'correcta'))
-        button_2.set_label(self.parser.get('pregunta'+str (self.numero), 'incorrecta2'))
-        button_3.set_label(self.parser.get('pregunta'+str (self.numero), 'incorrecta1'))   
-        button_1.connect('clicked',self.__cambiar_imagen_cb, button_2,button_3,button_0,image)
-        button_2.connect('clicked',self.__cambiar_imagen_cb, button_3,button_1,button_0,image)
-        button_3.connect('clicked',self.__cambiar_imagen_cb, button_2,button_1,button_0,image)
-     
-    def __cambiar_imagen_cb(self,b1,b2=None,b3=None,b0=None,i=None):
-        if b1.get_label()== self.parser.get('pregunta'+ str(self.anterior), 'correcta'):  
-            text =self.parser.get('pregunta'+ str(self.anterior), 'correcta')
-            p=1
-        else:
-            p=0
-      
-        self.puntaje=int(self.puntaje) +p
-        
-        if self.numero==39:
-           self.numero=1
-        else:
-            self.numero+=1
 
-        if self.numero % 2 ==0:
-            pixbuf = gtk.gdk.pixbuf_new_from_file(self.parser.get('pregunta'+str(self.numero), 'imagen'))
-            scaled_pixbuf = pixbuf.scale_simple(400,400,gtk.gdk.INTERP_BILINEAR)
-            i.set_from_pixbuf(scaled_pixbuf)
-            b3.set_label(self.parser.get('pregunta'+str (self.numero), 'correcta'))
-            b1.set_label(self.parser.get('pregunta'+str (self.numero), 'incorrecta1'))
-            b2.set_label(self.parser.get('pregunta'+str(self.numero), 'incorrecta2'))
-           
+        pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(
+            self.parser.get('pregunta' + str(self.numero), 'imagen'), 250, 250)
+        image.set_from_pixbuf(pixbuf)
+        button_1.set_label(self.parser.get(
+            'pregunta' + str(self.numero), 'correcta'))
+        button_2.set_label(self.parser.get(
+            'pregunta' + str(self.numero), 'incorrecta2'))
+        button_3.set_label(self.parser.get(
+            'pregunta' + str(self.numero), 'incorrecta1'))
+        button_1.connect(
+            'clicked',
+            self.__cambiar_imagen_cb,
+            button_2,
+            button_3,
+            button_0,
+            image)
+        button_2.connect(
+            'clicked',
+            self.__cambiar_imagen_cb,
+            button_3,
+            button_1,
+            button_0,
+            image)
+        button_3.connect(
+            'clicked',
+            self.__cambiar_imagen_cb,
+            button_2,
+            button_1,
+            button_0,
+            image)
+
+        self.widget_principal.add(vbox)
+        self.show_all()
+
+    def __cambiar_imagen_cb(self, b1, b2=None, b3=None, b0=None, i=None):
+        if b1.get_label() == self.parser.get('pregunta' + str(self.anterior), 'correcta'):
+            text = self.parser.get('pregunta' + str(self.anterior), 'correcta')
+            p = 1
         else:
-            pixbuf = gtk.gdk.pixbuf_new_from_file(self.parser.get('pregunta'+str(self.numero), 'imagen'))
-            scaled_pixbuf = pixbuf.scale_simple(400,400,gtk.gdk.INTERP_BILINEAR)
-            i.set_from_pixbuf(scaled_pixbuf)
-            b3.set_label(self.parser.get('pregunta'+str (self.numero), 'incorrecta1'))
-            b1.set_label(self.parser.get('pregunta'+str (self.numero), 'incorrecta2'))
-            b2.set_label(self.parser.get('pregunta'+str(self.numero), 'correcta'))
-            palabra = 'correcta' if self.puntaje==1 else 'correctas'
-          
-            self.anterior=self.numero
-            self.total= int(self.total)+1
+            p = 0
+
+        self.puntaje = int(self.puntaje) + p
+
+        if self.numero == 39:
+            self.numero = 1
+        else:
+            self.numero += 1
+
+        if self.numero % 2 == 0:
+            pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(
+                self.parser.get('pregunta' + str(self.numero), 'imagen'), 250, 250)
+            i.set_from_pixbuf(pixbuf)
+            b3.set_label(self.parser.get(
+                'pregunta' + str(self.numero), 'correcta'))
+            b1.set_label(self.parser.get(
+                'pregunta' + str(self.numero), 'incorrecta1'))
+            b2.set_label(self.parser.get(
+                'pregunta' + str(self.numero), 'incorrecta2'))
+
+        else:
+            pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(
+                self.parser.get('pregunta' + str(self.numero), 'imagen'), 250, 250)
+            i.set_from_pixbuf(pixbuf)
+            b3.set_label(self.parser.get(
+                'pregunta' + str(self.numero), 'incorrecta1'))
+            b1.set_label(self.parser.get(
+                'pregunta' + str(self.numero), 'incorrecta2'))
+            b2.set_label(self.parser.get(
+                'pregunta' + str(self.numero), 'correcta'))
+            palabra = 'correcta' if self.puntaje == 1 else 'correctas'
+
+            self.anterior = self.numero
+            self.total = int(self.total) + 1
             b0.set_label('%d %s de %d' % (self.puntaje, palabra, self.total))
 
     def read_file(self, tmp_file):
-        self.puntaje=self.metadata["puntaje"]
-        self.total=self.metadata["total"]
-        self.numero=self.metadata["numero"]
-        self.anterior=self.metada["anterior"]  
+        self.puntaje = self.metadata["puntaje"]
+        self.total = self.metadata["total"]
+        self.numero = self.metadata["numero"]
+        self.anterior = self.metada["anterior"]
 
     def write_file(self, tmp_file):
-        self.metadata["numero"]=self.numero
-        self.metadata["anterior"]=self.anterior
-        self.metadata["total"]=self.total
-        self.metadata["puntaje"]=self.puntaje
- 
-    def main(self):
-        gtk.main()
+        self.metadata["numero"] = self.numero
+        self.metadata["anterior"] = self.anterior
+        self.metadata["total"] = self.total
+        self.metadata["puntaje"] = self.puntaje
 
-print __name__
-if __name__ == "__main__": 
-    base = Base()  
+    def main(self):
+        Gtk.main()
+
+
+if __name__ == "__main__":
+    base = Base()
     base.main()
