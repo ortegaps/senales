@@ -1,0 +1,758 @@
+{
+    "taxi": [
+        "images/informativas/taxi.gif",
+        2,
+        10,
+        "Informativa"
+    ],
+    "Etrechamiento(dosmanos)": [
+        "images/preventivas/Etrechamiento(dosmanos).gif",
+        1,
+        10,
+        "Preventiva"
+    ],
+    "comienzo_de_autopista": [
+        "images/informativas/comienzo-de-autopista.gif",
+        0,
+        7,
+        "Informativa"
+    ],
+    "encrucijada-cruce": [
+        "images/preventivas/encrucijada-cruce.gif",
+        1,
+        7,
+        "Preventiva"
+    ],
+    "correo": [
+        "images/informativas/correo.gif",
+        0,
+        8,
+        "Informativa"
+    ],
+    "no_girar_a_la_derecha": [
+        "images/reglamentarias/no_girar_a_la_derecha.png",
+        1,
+        6,
+        "Reglamentaria"
+    ],
+    "permitido-girar-izquierda": [
+        "images/informativas/permitido-girar-izquierda.gif",
+        2,
+        1,
+        "Informativa"
+    ],
+    "permitido-girar-derecha": [
+        "images/informativas/permitido-girar-derecha.gif",
+        2,
+        0,
+        "Informativa"
+    ],
+    "circulaion_exlusiva_motos": [
+        "images/reglamentarias/circulaion_exlusiva_motos.png",
+        0,
+        4,
+        "Reglamentaria"
+    ],
+    "jinete": [
+        "images/preventivas/jinete.gif",
+        1,
+        13,
+        "Preventiva"
+    ],
+    "limitacion_de_altura": [
+        "images/reglamentarias/limitacion_de_altura.png",
+        0,
+        7,
+        "Reglamentaria"
+    ],
+    "proximidad-de-pare": [
+        "images/preventivas/proximidad-de-pare.gif",
+        2,
+        5,
+        "Preventiva"
+    ],
+    "museo": [
+        "images/informativas/museo.gif",
+        1,
+        12,
+        "Informativa"
+    ],
+    "prohibicion_de_circular_animal": [
+        "images/reglamentarias/prohibicion_de_circular_animal.png",
+        2,
+        1,
+        "Reglamentaria"
+    ],
+    "ambulancia": [
+        "images/preventivas/ambulancia.gif",
+        0,
+        1,
+        "Preventiva"
+    ],
+    "Bar": [
+        "images/informativas/bar.gif",
+        0,
+        3,
+        "Informativa"
+    ],
+    "flecha-direccional2": [
+        "images/preventivas/flecha-direccional2.gif",
+        1,
+        12,
+        "Preventiva"
+    ],
+    "camino-o-paso-transitable2": [
+        "images/informativas/paso2.gif",
+        1,
+        14,
+        "Informativa"
+    ],
+    "camino_sin_salida2": [
+        "images/informativas/camino-o-calle-sin-salida2.gif",
+        0,
+        4,
+        "Informativa"
+    ],
+    "servicio-mecanico": [
+        "images/informativas/servicio-mecanico.gif",
+        2,
+        8,
+        "Informativa"
+    ],
+    "Pendienteabajo": [
+        "images/preventivas/Pendienteabajo.gif",
+        1,
+        15,
+        "Preventiva"
+    ],
+    "Perfilirregular": [
+        "images/preventivas/Perfilirregular.gif",
+        2,
+        1,
+        "Preventiva"
+    ],
+    "no_girar_a_la_izquierda": [
+        "images/reglamentarias/no_girar_a_la_izquierda.png",
+        1,
+        7,
+        "Reglamentaria"
+    ],
+    "Estrechamient(unasolamano)": [
+        "images/preventivas/Estrechamient(unasolamano).gif",
+        1,
+        9,
+        "Preventiva"
+    ],
+    "tunel": [
+        "images/preventivas/tunel.gif",
+        2,
+        14,
+        "Preventiva"
+    ],
+    "restaurante": [
+        "images/informativas/restaurante.gif",
+        2,
+        7,
+        "Informativa"
+    ],
+    "policia": [
+        "images/informativas/policia.gif",
+        2,
+        4,
+        "Informativa"
+    ],
+    "proyeccion-de-piedras": [
+        "images/preventivas/proyeccion-de-piedras.gif",
+        2,
+        11,
+        "Preventiva"
+    ],
+    "puente-angosto": [
+        "images/preventivas/puente-angosto.gif",
+        2,
+        7,
+        "Preventiva"
+    ],
+    "calzada-dividida": [
+        "images/preventivas/calzada-dividida.gif",
+        0,
+        5,
+        "Preventiva"
+    ],
+    "Curva(Contracurva)": [
+        "images/preventivas/Curva-(Contracurva).gif",
+        0,
+        10,
+        "Preventiva"
+    ],
+    "camino_transitable": [
+        "images/informativas/paso1.gif",
+        0,
+        5,
+        "Informativa"
+    ],
+    "rotonda": [
+        "images/preventivas/rotonda.gif",
+        2,
+        9,
+        "Preventiva"
+    ],
+    "proximidad-restrictiva": [
+        "images/preventivas/proximidad-restrictiva.gif",
+        2,
+        6,
+        "Preventiva"
+    ],
+    "Curva-en-S": [
+        "images/preventivas/Curva-en-S.gif",
+        0,
+        11,
+        "Preventiva"
+    ],
+    "balneario": [
+        "images/informativas/balneario.gif",
+        0,
+        2,
+        "Informativa"
+    ],
+    "paso": [
+        "images/preventivas/paso.gif",
+        0,
+        15,
+        "Preventiva"
+    ],
+    "fin_de_autopista": [
+        "images/informativas/fin-de-autopista.gif",
+        1,
+        7,
+        "Informativa"
+    ],
+    "campamento": [
+        "images/informativas/campamento.gif",
+        0,
+        6,
+        "Informativa"
+    ],
+    "vientos-fuertes-laterales": [
+        "images/preventivas/vientos-fuertes-laterales.gif",
+        0,
+        14,
+        "Preventiva"
+    ],
+    "limitacion_de_largo_de_vehiculo": [
+        "images/reglamentarias/limitacion_de_largo_de_vehiculo.png",
+        0,
+        9,
+        "Reglamentaria"
+    ],
+    "encricijada-bifurcacion2": [
+        "images/preventivas/encricijada-bifurcacion2.gif",
+        1,
+        5,
+        "Preventiva"
+    ],
+    "gomeria": [
+        "images/informativas/gomeria.gif",
+        1,
+        8,
+        "Informativa"
+    ],
+    "aeropuerto": [
+        "images/informativas/aeropuerto.gif",
+        0,
+        0,
+        "Informativa"
+    ],
+    "Atencion": [
+        "images/preventivas/Atencion.png",
+        1,
+        0,
+        "Preventiva"
+    ],
+    "semaforo": [
+        "images/preventivas/semaforo.gif",
+        2,
+        12,
+        "Preventiva"
+    ],
+    "estacion_de_ferrocarril": [
+        "images/informativas/estacion-de-ferrocarril.gif",
+        1,
+        5,
+        "Informativa"
+    ],
+    "playa": [
+        "images/informativas/playa.gif",
+        2,
+        2,
+        "Informativa"
+    ],
+    "no_girar_en_u": [
+        "images/reglamentarias/no_girar_en_u.png",
+        1,
+        8,
+        "Reglamentaria"
+    ],
+    "teleferico": [
+        "images/informativas/teleferico.gif",
+        2,
+        11,
+        "Informativa"
+    ],
+    "estacionamiento_exclusivo": [
+        "images/reglamentarias/estacionamiento_exclusivo.png",
+        0,
+        6,
+        "Reglamentaria"
+    ],
+    "encricijada-empalme": [
+        "images/preventivas/encricijada-empalme.gif",
+        1,
+        6,
+        "Preventiva"
+    ],
+    "puente-movil": [
+        "images/preventivas/puente-movil.gif",
+        2,
+        8,
+        "Preventiva"
+    ],
+    "circula_colectivo": [
+        "images/reglamentarias/circula_colectivo.png",
+        0,
+        3,
+        "Reglamentaria"
+    ],
+    "limite_de_velocidad_minima": [
+        "images/reglamentarias/limite_de_velocidad_minima.png",
+        1,
+        2,
+        "Reglamentaria"
+    ],
+    "limitacion_de_peso": [
+        "images/reglamentarias/limitacion_de_peso.png",
+        0,
+        10,
+        "Reglamentaria"
+    ],
+    "escolares": [
+        "images/preventivas/escolares.gif",
+        1,
+        8,
+        "Preventiva"
+    ],
+    "prohibicion_de_circular_motos": [
+        "images/reglamentarias/prohibicion_de_circular_motos.png",
+        2,
+        6,
+        "Reglamentaria"
+    ],
+    "terminal-de-omnibus": [
+        "images/informativas/terminal-de-omnibus.gif",
+        2,
+        12,
+        "Informativa"
+    ],
+    "Cuz_de_San_Andres": [
+        "images/preventivas/Cuz_de_San_Andres.png",
+        1,
+        4,
+        "Preventiva"
+    ],
+    "circulaion_exlusica_bicicletas": [
+        "images/reglamentarias/circulaion_exlusica_bicicletas.png",
+        0,
+        1,
+        "Reglamentaria"
+    ],
+    "esquema_de_recorrido": [
+        "images/informativas/esquema-de-recorrido.gif",
+        1,
+        1,
+        "Informativa"
+    ],
+    "plaza": [
+        "images/informativas/plaza.gif",
+        2,
+        3,
+        "Informativa"
+    ],
+    "prohibicion_de_circular_bicibletas": [
+        "images/reglamentarias/prohibicion_de_circular_bicibletas.png",
+        2,
+        3,
+        "Reglamentaria"
+    ],
+    "presencia-de-tranvia": [
+        "images/preventivas/presencia-de-tranvia.gif",
+        2,
+        4,
+        "Preventiva"
+    ],
+    "punto-panoramico": [
+        "images/informativas/punto-panoramico.gif",
+        2,
+        6,
+        "Informativa"
+    ],
+    "prohibicion_de_circular_acoplado": [
+        "images/reglamentarias/prohibicion_de_circular_acoplado.png",
+        2,
+        0,
+        "Reglamentaria"
+    ],
+    "direcciones_permitidas": [
+        "images/informativas/direccione2s-permitidad-igu.gif",
+        0,
+        10,
+        "Informativa"
+    ],
+    "altura-limitada": [
+        "images/preventivas/altura-limitada.gif",
+        0,
+        0,
+        "Preventiva"
+    ],
+    "estacionamiento_permitido": [
+        "images/informativas/estacionamiento-permitido.gif",
+        1,
+        4,
+        "Informativa"
+    ],
+    "parada": [
+        "images/informativas/parada.gif",
+        1,
+        13,
+        "Informativa"
+    ],
+    "ciclista": [
+        "images/preventivas/ciclista.gif",
+        0,
+        8,
+        "Preventiva"
+    ],
+    "flecha-direccional": [
+        "images/preventivas/flecha-direccional.gif",
+        1,
+        11,
+        "Preventiva"
+    ],
+    "estacionamiento": [
+        "images/informativas/estacionamiento.gif",
+        1,
+        2,
+        "Informativa"
+    ],
+    "inicio-de-doble-circulacion": [
+        "images/preventivas/inicio-de-doble-circulacion.gif",
+        2,
+        15,
+        "Preventiva"
+    ],
+    "circulacion_exlusiva_peatones": [
+        "images/reglamentarias/circulacion_exlusiva_peatones.png",
+        0,
+        0,
+        "Reglamentaria"
+    ],
+    "prohibicion_de_circular_tractor": [
+        "images/reglamentarias/prohibicion_de_circular_tractor.png",
+        2,
+        9,
+        "Reglamentaria"
+    ],
+    "limite_de_velocidad_maxima": [
+        "images/reglamentarias/limite_de_velocidad_maxima.png",
+        1,
+        1,
+        "Reglamentaria"
+    ],
+    "no_estacionar": [
+        "images/reglamentarias/no_estacionar.png",
+        1,
+        4,
+        "Reglamentaria"
+    ],
+    "no_avanzar": [
+        "images/reglamentarias/no_avanzar.png",
+        1,
+        3,
+        "Reglamentaria"
+    ],
+    "limitacion_de_ancho": [
+        "images/reglamentarias/limitacion_de_ancho.png",
+        0,
+        8,
+        "Reglamentaria"
+    ],
+    "corredor-aereo": [
+        "images/preventivas/corredor-aereo.gif",
+        0,
+        9,
+        "Preventiva"
+    ],
+    "no_estacionar_ni_detenerse": [
+        "images/reglamentarias/no_estacionar_ni_detenerse.png",
+        1,
+        5,
+        "Reglamentaria"
+    ],
+    "indicadore-de-utilizacion-d": [
+        "images/informativas/indicadore-de-utilizacion-d.gif",
+        1,
+        10,
+        "Informativa"
+    ],
+    "puesto_sanitario": [
+        "images/informativas/puesto_sanitario.gif",
+        2,
+        5,
+        "Informativa"
+    ],
+    "estacionamiento_de_casas_ro": [
+        "images/informativas/estacionamiento-de-casas-ro.gif",
+        1,
+        3,
+        "Informativa"
+    ],
+    "prohibicion_de_circular_peaton": [
+        "images/reglamentarias/prohibicion_de_circular_peaton.png",
+        2,
+        7,
+        "Reglamentaria"
+    ],
+    "encricijada-bifurcacion": [
+        "images/preventivas/encricijada-bifurcacion.gif",
+        0,
+        13,
+        "Preventiva"
+    ],
+    "prohibido_adelantar": [
+        "images/reglamentarias/prohibido_adelantar.png",
+        2,
+        10,
+        "Reglamentaria"
+    ],
+    "Curva(comun)": [
+        "images/preventivas/Curva(comun).gif",
+        2,
+        0,
+        "Preventiva"
+    ],
+    "calzada-rezbaladiza": [
+        "images/preventivas/calzada-rezbaladiza.gif",
+        0,
+        6,
+        "Preventiva"
+    ],
+    "prohibicion_de_circular_carro_mano": [
+        "images/reglamentarias/prohibicion_de_circular_carro_mano.png",
+        2,
+        5,
+        "Reglamentaria"
+    ],
+    "incorporacion-de-transito-l": [
+        "images/preventivas/incorporacion-de-transito-l.gif",
+        0,
+        16,
+        "Preventiva"
+    ],
+    "Ninos": [
+        "images/preventivas/Ninos.gif",
+        2,
+        10,
+        "Preventiva"
+    ],
+    "no_ruido_molesto": [
+        "images/reglamentarias/no_ruido_molesto.png",
+        1,
+        9,
+        "Reglamentaria"
+    ],
+    "prohibicion_de_circular_camion": [
+        "images/reglamentarias/prohibicion_de_circular_camion.png",
+        2,
+        4,
+        "Reglamentaria"
+    ],
+    "tractor": [
+        "images/preventivas/tractor.gif",
+        2,
+        13,
+        "Preventiva"
+    ],
+    "animales-sueltos-vaca": [
+        "images/preventivas/animales-sueltos-vaca.gif",
+        0,
+        4,
+        "Preventiva"
+    ],
+    "lugar-para-recreacion": [
+        "images/informativas/lugar-para-recreacion-y-des.gif",
+        1,
+        11,
+        "Informativa"
+    ],
+    "direcciones_permitidas6": [
+        "images/informativas/direcciones-permitidad-izqu.gif",
+        1,
+        0,
+        "Informativa"
+    ],
+    "direcciones_permitidas4": [
+        "images/informativas/direcciones-permitidad-dere.gif",
+        0,
+        13,
+        "Informativa"
+    ],
+    "direcciones_permitidas5": [
+        "images/informativas/direcciones-permitidad-igua.gif",
+        0,
+        14,
+        "Informativa"
+    ],
+    "limitacion_de_peso_2": [
+        "images/reglamentarias/limitacion_de_peso_2.png",
+        1,
+        0,
+        "Reglamentaria"
+    ],
+    "direcciones_permitidas3": [
+        "images/informativas/direcciones-permitidad-bifu.gif",
+        0,
+        12,
+        "Informativa"
+    ],
+    "velocidades-maximas-permiti": [
+        "images/informativas/velocidades-maximas-permiti.gif",
+        2,
+        13,
+        "Informativa"
+    ],
+    "perfilirregular2": [
+        "images/preventivas/perfilirregular2.gif",
+        2,
+        2,
+        "Preventiva"
+    ],
+    "Pendiente(ascendente)": [
+        "images/preventivas/Pendiente(ascendente).gif",
+        1,
+        14,
+        "Preventiva"
+    ],
+    "Camino-sinuoso": [
+        "images/preventivas/Camino-sinuoso.gif",
+        0,
+        7,
+        "Preventiva"
+    ],
+    "perfil-irregular-lomada": [
+        "images/preventivas/perfil-irregular-lomada.gif",
+        2,
+        3,
+        "Preventiva"
+    ],
+    "hotel": [
+        "images/informativas/hotel.gif",
+        1,
+        9,
+        "Informativa"
+    ],
+    "Cruce_ferrioviario": [
+        "images/preventivas/Cruce_ferrioviario.png",
+        1,
+        2,
+        "Preventiva"
+    ],
+    "servicio-telefonico": [
+        "images/informativas/servicio-telefonico.gif",
+        2,
+        9,
+        "Informativa"
+    ],
+    "Cruce_de_Peatoes": [
+        "images/preventivas/Cruce_de_Peatoes.png",
+        1,
+        1,
+        "Preventiva"
+    ],
+    "prohibicion_de_circular_trac.an": [
+        "images/reglamentarias/prohibicion_de_circular_trac.an.png",
+        2,
+        8,
+        "Reglamentaria"
+    ],
+    "prohibicion_de_circular_autos": [
+        "images/reglamentarias/prohibicion_de_circular_autos.png",
+        2,
+        2,
+        "Reglamentaria"
+    ],
+    "circulaion_exlusica_jinetes": [
+        "images/reglamentarias/circulaion_exlusica_jinetes.png",
+        0,
+        2,
+        "Reglamentaria"
+    ],
+    "direcciones_permitidas2": [
+        "images/informativas/direcciones-permitidad-am-s.gif",
+        0,
+        11,
+        "Informativa"
+    ],
+    "derrumbes": [
+        "images/preventivas/derrumbes.gif",
+        0,
+        12,
+        "Preventiva"
+    ],
+    "estacion_de_servicio": [
+        "images/informativas/estacion-de-servicio.gif",
+        1,
+        6,
+        "Informativa"
+    ],
+    "animales-sueltos-ciervos": [
+        "images/preventivas/animales-sueltos-ciervos.gif",
+        0,
+        3,
+        "Preventiva"
+    ],
+    "Curva_Cerrada": [
+        "images/preventivas/Curva_Cerrada.png",
+        1,
+        3,
+        "Preventiva"
+    ],
+    "desvio_por_cambio_de_sentido": [
+        "images/informativas/desvio-por-cambio-de-sentid.gif",
+        0,
+        9,
+        "Informativa"
+    ],
+    "contramano": [
+        "images/reglamentarias/contramano.png",
+        0,
+        5,
+        "Reglamentaria"
+    ],
+    "camino_sin_salida": [
+        "images/informativas/camino-o-calle-sin-salida.gif",
+        0,
+        1,
+        "Informativa"
+    ],
+    "ancho-limitado": [
+        "images/preventivas/ancho-limitado.gif",
+        0,
+        2,
+        "Preventiva"
+    ],
+    "prohibicion_de_cambiar_de_carril": [
+        "images/reglamentarias/prohibicion_de_cambiar_de_carril.png",
+        1,
+        10,
+        "Reglamentaria"
+    ]
+}
