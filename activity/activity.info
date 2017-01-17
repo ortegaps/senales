@@ -1,0 +1,7 @@
+[Activity]
+name = Signs
+activity_version = 1
+bundle_id = org.sugarlabs.signs
+exec = sugar-activity activity.SignsActivity
+icon = signs
+license = GPLv2+
